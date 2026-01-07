@@ -1,2 +1,2 @@
-# quarkus-backups
-Proyecto para generar backups y almacenarlos en Mega generado con Quarkus y una arquitectura hexagonal
+# Quarkus Backup Service
+Proyecto didáctico sobre Quarkus y Arquitectura Hexagonal aplicado a un servicio de backups en la nube.
