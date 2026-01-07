@@ -8,18 +8,18 @@ import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
 import kotlin.io.path.Path
 
-class SearchBackup {
+class SearchBackupTest {
     private val repository = FakeBackupRepository()
 
     @Test
     fun `should get a backup`() {
-        val backup = repository.findById(BackupId("backup-1"))
+        val backup = SearchBackup(repository).execute(BackupId("backup-1"))
         assertNotNull(backup)
     }
 
     @Test
     fun `shouldn't get a backup`() {
-        val backup = repository.findById(BackupId("backup-2"))
+        val backup = SearchBackup(repository).execute(BackupId("backup-2"))
         assertNull(backup)
     }
 

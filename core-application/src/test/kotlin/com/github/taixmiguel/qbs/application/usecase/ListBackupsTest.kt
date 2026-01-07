@@ -13,7 +13,7 @@ class ListBackupsTest {
 
     @Test
     fun `should get a backup list`() {
-        val backups = repository.findAll()
+        val backups = ListBackups(repository).execute()
 
         assertNotNull(backups)
         assertEquals(2, backups.size)

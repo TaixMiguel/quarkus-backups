@@ -10,25 +10,30 @@ class CreateBackup(
     private val idGenerator: BackupIdGenerator,
     private val repository: BackupRepository
 ) {
-    fun execute(name: String, description: String, storageService: String,
-                sourceDir: Path, destinationDir: Path, username: String? = null,
-                password: String? = null, nBackupsMax: Int = 15, swSensorMQTT: Boolean = false): BackupId {
+    fun execute(command: CreateBackupCommand): BackupId {
         val backupId = idGenerator.generate()
 
         val backup = Backup(
             id = backupId,
-            name = name,
-            description = description,
-            storageService = storageService,
-            sourceDir = sourceDir,
-            destinationDir = destinationDir,
-            username = username,
-            password = password,
-            nBackupsMax = nBackupsMax,
-            swSensorMQTT = swSensorMQTT
+            name = command.name,
+            description = command.description,
+            storageService = command.storageService,
+            sourceDir = command.sourceDir,
+            destinationDir = command.destinationDir,
+            username = command.username,
+            password = command.password,
+            nBackupsMax = command.nBackupsMax,
+            swSensorMQTT = command.swSensorMQTT
         )
 
         repository.save(backup)
         return backup.id
     }
 }
+
+data class CreateBackupCommand(
+    val name: String, val description: String, val storageService: String,
+    val sourceDir: Path, val destinationDir: Path, val username: String? = null,
+    val password: String? = null, val nBackupsMax: Int = 15,
+    val swSensorMQTT: Boolean = false
+)

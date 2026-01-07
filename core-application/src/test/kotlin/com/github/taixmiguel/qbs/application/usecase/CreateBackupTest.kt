@@ -21,9 +21,9 @@ class CreateBackupTest {
 
     @Test
     fun `should create and persist a backup`() {
-        createBackup.execute(name = "backup", description = "backup description", storageService = "local storage",
-            sourceDir = Path("src"), destinationDir = Path("dst")
-        )
+        val command = CreateBackupCommand(name = "backup", description = "backup description",
+            storageService = "local storage", sourceDir = Path("src"), destinationDir = Path("dst"))
+        createBackup.execute(command)
         val savedBackup = repository.savedBackup
 
         assertNotNull(savedBackup)
