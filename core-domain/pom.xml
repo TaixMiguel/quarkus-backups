@@ -6,7 +6,7 @@
 
     <parent>
         <version>1.0.0-SNAPSHOT</version>
-        <groupId>com.github.taixmiguel</groupId>
+        <groupId>com.github.taixmiguel.qbs</groupId>
         <artifactId>quarkus-backup-service</artifactId>
     </parent>
 
