@@ -3,7 +3,6 @@ updates:
   # Maintain dependencies for Maven
   # Configured for the root directory to handle the multi-module project
   - package-ecosystem: "maven"
-    directory: "/"
     schedule:
       interval: "weekly"
       day: "thursday"
@@ -12,6 +11,7 @@ updates:
     open-pull-requests-limit: 10
     rebase-strategy: "auto"
     target-branch: "main"
+    directory: "/"
     groups:
       maven-deps:
         patterns:
@@ -19,7 +19,6 @@ updates:
 
   # Maintain dependencies for GitHub Actions
   - package-ecosystem: "github-actions"
-    directory: "/.github"
     schedule:
       interval: "weekly"
       day: "thursday"
@@ -28,6 +27,7 @@ updates:
     open-pull-requests-limit: 5
     rebase-strategy: "auto"
     target-branch: "main"
+    directory: "/.github"
     groups:
       gh-actions:
         patterns:
