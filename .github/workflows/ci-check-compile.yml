@@ -1,0 +1,20 @@
+name: CI check compile
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  default:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up JDK
+        uses: actions/setup-java@v5
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Build with maven and check test
+        run: mvn -B test

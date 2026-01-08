@@ -1,0 +1,61 @@
+version: 2
+updates:
+  # Maintain dependencies for Maven
+  - package-ecosystem: "maven"
+    open-pull-requests-limit: 5
+    directory: "/core-domain"
+    rebase-strategy: "auto"
+    target-branch: "main"
+    schedule:
+      interval: "weekly"
+      day: "thursday"
+      timezone: "UTC"
+      time: "03:00"
+    groups:
+      maven-deps:
+        patterns:
+          - "*"
+  - package-ecosystem: "maven"
+    open-pull-requests-limit: 5
+    directory: "/core-application"
+    rebase-strategy: "auto"
+    target-branch: "main"
+    schedule:
+      interval: "weekly"
+      day: "thursday"
+      timezone: "UTC"
+      time: "03:00"
+    groups:
+      maven-deps:
+        patterns:
+          - "*"
+  - package-ecosystem: "maven"
+    open-pull-requests-limit: 5
+    directory: "/driven-adapters/jpa-persistence"
+    rebase-strategy: "auto"
+    target-branch: "main"
+    schedule:
+      interval: "weekly"
+      day: "thursday"
+      timezone: "UTC"
+      time: "03:00"
+    groups:
+      maven-deps:
+        patterns:
+          - "*"
+
+  # Maintain dependencies for GitHub Actions
+  - package-ecosystem: "github-actions"
+    open-pull-requests-limit: 5
+    rebase-strategy: "auto"
+    directory: "/.github"
+    target-branch: "main"
+    schedule:
+      interval: "weekly"
+      day: "thursday"
+      timezone: "UTC"
+      time: "03:00"
+    groups:
+      gh-actions:
+        patterns:
+          - "*"
