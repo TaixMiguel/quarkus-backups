@@ -1,0 +1,34 @@
+version: 2
+updates:
+  # Maintain dependencies for Maven
+  # Configured for the root directory to handle the multi-module project
+  - package-ecosystem: "maven"
+    schedule:
+      interval: "weekly"
+      day: "thursday"
+      timezone: "UTC"
+      time: "03:00"
+    open-pull-requests-limit: 10
+    rebase-strategy: "auto"
+    target-branch: "main"
+    directory: "/"
+    groups:
+      maven-deps:
+        patterns:
+          - "*"
+
+  # Maintain dependencies for GitHub Actions
+  - package-ecosystem: "github-actions"
+    schedule:
+      interval: "weekly"
+      day: "thursday"
+      timezone: "UTC"
+      time: "03:00"
+    open-pull-requests-limit: 5
+    rebase-strategy: "auto"
+    target-branch: "main"
+    directory: "/.github"
+    groups:
+      gh-actions:
+        patterns:
+          - "*"
