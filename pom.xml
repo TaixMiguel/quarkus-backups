@@ -11,7 +11,7 @@
 
     <modules>
         <module>core/domain</module>
-        <module>core-application</module>
+        <module>core/application</module>
         <module>driven-adapters/jpa-persistence</module>
     </modules>
 

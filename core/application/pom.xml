@@ -8,6 +8,7 @@
         <version>1.0.0-SNAPSHOT</version>
         <groupId>com.github.taixmiguel.qbs</groupId>
         <artifactId>quarkus-backup-service</artifactId>
+        <relativePath>../../pom.xml</relativePath>
     </parent>
 
     <artifactId>core-application</artifactId>
