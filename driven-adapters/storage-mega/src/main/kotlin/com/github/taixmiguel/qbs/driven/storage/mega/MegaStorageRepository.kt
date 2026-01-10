@@ -40,6 +40,8 @@ class MegaStorageRepository: StorageRepository {
                     cancellationToken = CancellationToken.default()
                 )
             }
+        } catch (e: Exception) {
+            e.printStackTrace()
         } finally {
             logout()
         }
@@ -49,26 +51,33 @@ class MegaStorageRepository: StorageRepository {
         try {
             login()
 
-            val node = findNode(path, true)
-            val files = mega.getChildren(node!!)
-            val file = files.first { it.name == filename }
-            val fileToDownload = kotlinx.io.files.Path(filename)
+            val node = findNode(path, false) ?: return null
+            val file = mega.getChildren(node).firstOrNull { it.name == filename } ?: return null
 
-            SystemFileSystem.sink(fileToDownload).use { fileOutputSink ->
-                mega.downloadFile(
-                    src = file,
-                    fileOutputSink = ProgressCountingSink(
-                        delegate = fileOutputSink,
-                        totalBytes = file.size,
-                        onProgress = { b, t ->
-                            println("Downloaded $b of $t bytes")
-                        }
-                    ).buffered(),
-                    cancellationToken = CancellationToken.default()
-                )
+            val tempFile = File.createTempFile("qbs-mega-", "-download")
+            val fileToDownload = kotlinx.io.files.Path(tempFile.absolutePath)
+
+            try {
+                SystemFileSystem.sink(fileToDownload).use { fileOutputSink ->
+                    mega.downloadFile(
+                        src = file,
+                        fileOutputSink = ProgressCountingSink(
+                            delegate = fileOutputSink,
+                            totalBytes = file.size,
+                            onProgress = { b, t ->
+                                println("Downloaded $b of $t bytes")
+                            }
+                        ).buffered(),
+                        cancellationToken = CancellationToken.default()
+                    )
+                }
+                return tempFile
+            } catch (e: Exception) {
+                tempFile.delete()
+                throw e
             }
-            return File(fileToDownload.toString())
         } catch (e: Exception) {
+            e.printStackTrace()
             return null
         } finally {
             logout()
@@ -79,12 +88,11 @@ class MegaStorageRepository: StorageRepository {
         try {
             login()
 
-            val node = findNode(path, true)
-            val files = mega.getChildren(node!!)
-            val file = files.first { it.name == filename }
+            val node = findNode(path, false) ?: return
+            val file = mega.getChildren(node).firstOrNull { it.name == filename } ?: return
             mega.delete(file, destroy = true)
         } catch (e: Exception) {
-            // TODO(not implemented yet)
+            e.printStackTrace()
         } finally {
             logout()
         }
