@@ -10,9 +10,11 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>core/domain</module>
         <module>core/application</module>
+        <module>core/domain</module>
+
         <module>driven-adapters/jpa-persistence</module>
+        <module>driven-adapters/storage-mega</module>
     </modules>
 
     <properties>
