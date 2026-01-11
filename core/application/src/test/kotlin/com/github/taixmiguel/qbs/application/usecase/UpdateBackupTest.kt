@@ -1,0 +1,79 @@
+package com.github.taixmiguel.qbs.application.usecase
+
+import com.github.taixmiguel.qbs.application.port.BackupIdGenerator
+import com.github.taixmiguel.qbs.application.port.BackupRepository
+import com.github.taixmiguel.qbs.application.port.StorageServiceRegistry
+import com.github.taixmiguel.qbs.domain.Backup
+import com.github.taixmiguel.qbs.domain.BackupId
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.assertNull
+import org.junit.jupiter.api.Test
+import kotlin.io.path.Path
+
+class UpdateBackupTest {
+    private val generatedId = BackupId("backup-id")
+
+    private val repository = FakeBackupRepository()
+    private val idGenerator = FakeBackupIdGenerator(generatedId)
+    private val ssRegistry = FakeStorageServiceRegistry()
+
+    private val createBackup = CreateBackup(repository = repository, idGenerator = idGenerator,
+                                ssRegistry = ssRegistry)
+    private val updateBackup = UpdateBackup(repository = repository, ssRegistry = ssRegistry)
+
+    @Test
+    fun `should update and persist a backup`() {
+        val cCommand = CreateBackupCommand(name = "backup", description = "backup description",
+            storageService = "local storage", sourceDir = Path("src"), destinationDir = Path("dst"))
+        createBackup.execute(cCommand)
+        val savedBackup = repository.savedBackup
+
+        val uCommand = UpdateBackupCommand(name = "backup-updated", description = "backup description updated",
+            storageService = "local storage", sourceDir = Path("src"), destinationDir = Path("dst"))
+        updateBackup.execute(savedBackup!!.id, uCommand)
+        val updatedBackup = repository.savedBackup
+
+        assertNotNull(updatedBackup)
+        assertEquals(generatedId, updatedBackup!!.id)
+        assertEquals("backup-updated", updatedBackup.name)
+        assertEquals("backup description updated", updatedBackup.description)
+        assertEquals("local storage", updatedBackup.storageService)
+        assertEquals("src", updatedBackup.sourceDir.toString())
+        assertEquals("dst", updatedBackup.destinationDir.toString())
+        assertNull(updatedBackup.username)
+        assertNull(updatedBackup.password)
+        assertEquals(15, updatedBackup.nBackupsMax)
+        assertFalse(updatedBackup.swSensorMQTT)
+    }
+
+    private class FakeBackupRepository: BackupRepository {
+        var savedBackup: Backup? = null
+
+        override fun save(backup: Backup) {
+            savedBackup = backup
+        }
+
+        override fun findById(id: BackupId): Backup? {
+            return if (savedBackup?.id == id) savedBackup else null
+        }
+
+        override fun findAll(): List<Backup> {
+            TODO("Not yet implemented")
+        }
+    }
+
+    private class FakeBackupIdGenerator(
+        private val id: BackupId
+    ): BackupIdGenerator {
+        override fun generate(): BackupId = id
+    }
+
+    private class FakeStorageServiceRegistry: StorageServiceRegistry {
+        val supported: MutableSet<String> = mutableSetOf("local storage")
+
+        override fun isSupported(storageService: String): Boolean = supported.contains(storageService)
+        override fun supportedServices(): Set<String> = supported
+    }
+}
