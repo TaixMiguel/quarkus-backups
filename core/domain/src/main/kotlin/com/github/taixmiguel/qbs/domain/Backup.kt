@@ -26,6 +26,8 @@ data class Backup(
         require(sourceDir.exists()) { "La ruta no existe: $sourceDir" }
         require(sourceDir.isDirectory()) { "La ruta no es un directorio: $sourceDir" }
         require(sourceDir.isReadable()) { "No tienes permiso de lectura en: $sourceDir" }
+
+        require(nBackupsMax <= 0) { "El parámetro nBackupsMax debe ser superior a 0" }
     }
 
     override fun toString(): String {
