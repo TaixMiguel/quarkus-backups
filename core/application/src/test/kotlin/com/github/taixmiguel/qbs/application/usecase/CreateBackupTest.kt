@@ -3,6 +3,7 @@ package com.github.taixmiguel.qbs.application.usecase
 import com.github.taixmiguel.qbs.application.port.BackupIdGenerator
 import com.github.taixmiguel.qbs.application.port.BackupRepository
 import com.github.taixmiguel.qbs.application.port.StorageServiceRegistry
+import com.github.taixmiguel.qbs.application.usecase.commands.BackupCommand
 import com.github.taixmiguel.qbs.domain.Backup
 import com.github.taixmiguel.qbs.domain.BackupId
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -24,7 +25,7 @@ class CreateBackupTest {
 
     @Test
     fun `should create and persist a backup`() {
-        val command = CreateBackupCommand(name = "backup", description = "backup description",
+        val command = BackupCommand(name = "backup", description = "backup description",
             storageService = "local storage", sourceDir = Path("src"), destinationDir = Path("dst"))
         createBackup.execute(command)
         val savedBackup = repository.savedBackup

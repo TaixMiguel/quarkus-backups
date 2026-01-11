@@ -3,6 +3,7 @@ package com.github.taixmiguel.qbs.application.usecase
 import com.github.taixmiguel.qbs.application.port.BackupIdGenerator
 import com.github.taixmiguel.qbs.application.port.BackupRepository
 import com.github.taixmiguel.qbs.application.port.StorageServiceRegistry
+import com.github.taixmiguel.qbs.application.usecase.commands.BackupCommand
 import com.github.taixmiguel.qbs.domain.Backup
 import com.github.taixmiguel.qbs.domain.BackupId
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -25,12 +26,12 @@ class UpdateBackupTest {
 
     @Test
     fun `should update and persist a backup`() {
-        val cCommand = CreateBackupCommand(name = "backup", description = "backup description",
+        val cCommand = BackupCommand(name = "backup", description = "backup description",
             storageService = "local storage", sourceDir = Path("src"), destinationDir = Path("dst"))
         createBackup.execute(cCommand)
         val savedBackup = repository.savedBackup
 
-        val uCommand = UpdateBackupCommand(name = "backup-updated", description = "backup description updated",
+        val uCommand = BackupCommand(name = "backup-updated", description = "backup description updated",
             storageService = "local storage", sourceDir = Path("src"), destinationDir = Path("dst"))
         updateBackup.execute(savedBackup!!.id, uCommand)
         val updatedBackup = repository.savedBackup
