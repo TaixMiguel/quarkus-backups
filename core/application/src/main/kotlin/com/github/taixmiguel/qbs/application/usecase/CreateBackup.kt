@@ -14,7 +14,8 @@ class CreateBackup(
 ) {
     fun execute(command: CreateBackupCommand): BackupId {
         if (!ssRegistry.isSupported(command.storageService))
-            throw IllegalArgumentException("Storage service '${command.storageService}' not supported. Supported services are ${ssRegistry.supportedServices()}")
+            throw IllegalArgumentException("Storage service '${command.storageService}' not supported. Supported " +
+                    "services are ${ssRegistry.supportedServices().joinToString(", ")}")
 
         val backup = Backup(
             id = idGenerator.generate(),

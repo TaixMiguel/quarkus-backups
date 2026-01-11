@@ -66,10 +66,9 @@ class CreateBackupTest {
     }
 
     private class FakeStorageServiceRegistry: StorageServiceRegistry {
-        override fun isSupported(storageService: String): Boolean = true
+        val supported: MutableSet<String> = mutableSetOf("local storage")
 
-        override fun supportedServices(): Set<String> {
-            TODO("Not yet implemented")
-        }
+        override fun isSupported(storageService: String): Boolean = supported.contains(storageService)
+        override fun supportedServices(): Set<String> = supported
     }
 }
