@@ -2,6 +2,7 @@ package com.github.taixmiguel.qbs.application.usecase
 
 import com.github.taixmiguel.qbs.application.port.BackupIdGenerator
 import com.github.taixmiguel.qbs.application.port.BackupRepository
+import com.github.taixmiguel.qbs.application.port.StorageServiceRegistry
 import com.github.taixmiguel.qbs.domain.Backup
 import com.github.taixmiguel.qbs.domain.BackupId
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -16,8 +17,10 @@ class CreateBackupTest {
 
     private val repository = FakeBackupRepository()
     private val idGenerator = FakeBackupIdGenerator(generatedId)
+    private val ssRegistry = FakeStorageServiceRegistry()
 
-    private val createBackup = CreateBackup(repository = repository, idGenerator = idGenerator)
+    private val createBackup = CreateBackup(repository = repository, idGenerator = idGenerator,
+                                ssRegistry = ssRegistry)
 
     @Test
     fun `should create and persist a backup`() {
@@ -60,5 +63,13 @@ class CreateBackupTest {
         private val id: BackupId
     ): BackupIdGenerator {
         override fun generate(): BackupId = id
+    }
+
+    private class FakeStorageServiceRegistry: StorageServiceRegistry {
+        override fun isSupported(storageService: String): Boolean = true
+
+        override fun supportedServices(): Set<String> {
+            TODO("Not yet implemented")
+        }
     }
 }
