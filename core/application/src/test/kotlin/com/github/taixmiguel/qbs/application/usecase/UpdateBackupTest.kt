@@ -2,6 +2,7 @@ package com.github.taixmiguel.qbs.application.usecase
 
 import com.github.taixmiguel.qbs.application.port.BackupIdGenerator
 import com.github.taixmiguel.qbs.application.port.BackupRepository
+import com.github.taixmiguel.qbs.application.port.StorageRepository
 import com.github.taixmiguel.qbs.application.port.StorageServiceRegistry
 import com.github.taixmiguel.qbs.application.usecase.commands.BackupCommand
 import com.github.taixmiguel.qbs.domain.Backup
@@ -76,5 +77,8 @@ class UpdateBackupTest {
 
         override fun isSupported(storageService: String): Boolean = supported.contains(storageService)
         override fun supportedServices(): Set<String> = supported
+        override fun getRepository(storageService: String): StorageRepository? {
+            TODO("Not yet implemented")
+        }
     }
 }
