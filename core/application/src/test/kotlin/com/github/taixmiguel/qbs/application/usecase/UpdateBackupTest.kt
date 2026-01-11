@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
 import kotlin.io.path.Path
 
-class CreateBackupTest {
+class UpdateBackupTest {
     private val generatedId = BackupId("backup-id")
 
     private val repository = FakeBackupRepository()
@@ -22,26 +22,31 @@ class CreateBackupTest {
 
     private val createBackup = CreateBackup(repository = repository, idGenerator = idGenerator,
                                 ssRegistry = ssRegistry)
+    private val updateBackup = UpdateBackup(repository = repository, ssRegistry = ssRegistry)
 
     @Test
-    fun `should create and persist a backup`() {
-        val command = BackupCommand(name = "backup", description = "backup description",
+    fun `should update and persist a backup`() {
+        val cCommand = BackupCommand(name = "backup", description = "backup description",
             storageService = "local storage", sourceDir = Path("src"), destinationDir = Path("dst"))
-        createBackup.execute(command)
+        createBackup.execute(cCommand)
         val savedBackup = repository.savedBackup
 
-        assertNotNull(savedBackup)
-        assertEquals(generatedId, savedBackup!!.id)
-        assertEquals("backup", savedBackup.name)
+        val uCommand = BackupCommand(name = "backup-updated", description = "backup description updated",
+            storageService = "local storage", sourceDir = Path("src"), destinationDir = Path("dst"))
+        updateBackup.execute(savedBackup!!.id, uCommand)
+        val updatedBackup = repository.savedBackup
 
-        assertEquals("backup description", savedBackup.description)
-        assertEquals("local storage", savedBackup.storageService)
-        assertEquals("src", savedBackup.sourceDir.toString())
-        assertEquals("dst", savedBackup.destinationDir.toString())
-        assertNull(savedBackup.username)
-        assertNull(savedBackup.password)
-        assertEquals(15, savedBackup.nBackupsMax)
-        assertFalse(savedBackup.swSensorMQTT)
+        assertNotNull(updatedBackup)
+        assertEquals(generatedId, updatedBackup!!.id)
+        assertEquals("backup-updated", updatedBackup.name)
+        assertEquals("backup description updated", updatedBackup.description)
+        assertEquals("local storage", updatedBackup.storageService)
+        assertEquals("src", updatedBackup.sourceDir.toString())
+        assertEquals("dst", updatedBackup.destinationDir.toString())
+        assertNull(updatedBackup.username)
+        assertNull(updatedBackup.password)
+        assertEquals(15, updatedBackup.nBackupsMax)
+        assertFalse(updatedBackup.swSensorMQTT)
     }
 
     private class FakeBackupRepository: BackupRepository {
@@ -52,7 +57,7 @@ class CreateBackupTest {
         }
 
         override fun findById(id: BackupId): Backup? {
-            TODO("Not yet implemented")
+            return if (savedBackup?.id == id) savedBackup else null
         }
 
         override fun findAll(): List<Backup> {
