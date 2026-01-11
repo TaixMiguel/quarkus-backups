@@ -94,10 +94,22 @@
                 <executions>
                     <execution>
                         <goals>
-                            <goal>build</goal>
                             <goal>generate-code</goal>
                             <goal>generate-code-tests</goal>
-                            <goal>native-image-agent</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>io.smallrye</groupId>
+                <artifactId>jandex-maven-plugin</artifactId>
+                <version>3.2.7</version>
+                <executions>
+                    <execution>
+                        <id>make-index</id>
+                        <phase>process-classes</phase>
+                        <goals>
+                            <goal>jandex</goal>
                         </goals>
                     </execution>
                 </executions>
