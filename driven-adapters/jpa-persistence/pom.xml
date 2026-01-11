@@ -93,6 +93,7 @@
                 <executions>
                     <execution>
                         <id>make-index</id>
+                        <phase>process-classes</phase>
                         <goals>
                             <goal>jandex</goal>
                         </goals>
