@@ -12,6 +12,8 @@ import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
+import java.io.File
+import java.nio.file.Path
 import kotlin.io.path.Path
 
 class CreateBackupTest {
@@ -72,8 +74,11 @@ class CreateBackupTest {
 
         override fun isSupported(storageService: String): Boolean = supported.contains(storageService)
         override fun supportedServices(): Set<String> = supported
-        override fun getRepository(storageService: String): StorageRepository? {
-            TODO("Not yet implemented")
-        }
+        override fun getRepository(storageService: String): StorageRepository? =
+            if (supported.contains(storageService)) object : StorageRepository {
+                override suspend fun push(pathToUpload: Path, file: File) { /* no-op */ }
+                override suspend fun pull(path: Path, filename: String): File? = null
+                override suspend fun remove(path: Path, filename: String) { /* no-op */ }
+            } else null
     }
 }
