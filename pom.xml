@@ -13,6 +13,8 @@
         <module>core/application</module>
         <module>core/domain</module>
 
+        <module>deployment/app</module>
+
         <module>driven-adapters/jpa-persistence</module>
         <module>driven-adapters/storage-mega</module>
 
