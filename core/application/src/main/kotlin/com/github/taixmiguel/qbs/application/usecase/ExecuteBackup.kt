@@ -17,18 +17,22 @@ class ExecuteBackup {
         val outputPath = "backup_${now.format(formatter)}.bck"
 
         val backupFile =  File(outputPath)
-        zipDirectory(backup.sourceDir, outputPath)
-        repository.push(backup.destinationDir, backupFile)
-
-        if (backupFile.exists()) backupFile.delete()
+        try {
+            zipDirectory(backup.sourceDir, outputPath)
+            repository.push(backup.destinationDir, backupFile)
+        } finally {
+            if (backupFile.exists()) backupFile.delete()
+        }
     }
 
     private fun zipDirectory(sourcePath: Path, outputPath: String) {
         val sourceDir = File(sourcePath.toString())
 
         ZipOutputStream(FileOutputStream(outputPath)).use { zipOut ->
+            val outputCanonical = File(outputPath).canonicalPath
             sourceDir.walkTopDown().forEach { file ->
-                val zipEntryName = file.relativeTo(sourceDir).path
+                if (file.canonicalPath == outputCanonical) return@forEach
+                val zipEntryName = file.relativeTo(sourceDir).invariantSeparatorsPath
 
                 if (file.isDirectory) {
                     if (zipEntryName.isNotEmpty()) {
