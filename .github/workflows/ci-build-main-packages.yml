@@ -36,6 +36,6 @@ jobs:
         with:
           context: deployment/app
           push: true
-          file: deployment/app/src/main/docker/Dockerfile.native-micro
+          file: deployment/app/src/main/docker/Dockerfile
           tags: ${{ env.REGISTRY }}/taixmiguel/quarkus-backups:latest
           platforms: linux/amd64,linux/arm64
