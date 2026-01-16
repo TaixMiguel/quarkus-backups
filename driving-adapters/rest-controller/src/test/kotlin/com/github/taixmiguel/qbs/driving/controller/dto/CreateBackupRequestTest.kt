@@ -26,7 +26,6 @@ class CreateBackupRequestTest {
         """
 
         val request = mapper.readValue(json, CreateBackupRequest::class.java)
-
         assertEquals(5, request.nBackupsMax)
     }
 }
