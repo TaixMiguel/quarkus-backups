@@ -1,7 +1,8 @@
 package com.github.taixmiguel.qbs.application.usecase
 
-import com.github.taixmiguel.qbs.application.port.StorageRepository
-import com.github.taixmiguel.qbs.domain.Backup
+import com.github.taixmiguel.qbs.application.port.BackupRepository
+import com.github.taixmiguel.qbs.application.port.StorageServiceRegistry
+import com.github.taixmiguel.qbs.domain.BackupId
 import java.io.File
 import java.io.FileOutputStream
 import java.nio.file.Path
@@ -11,18 +12,22 @@ import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 
 class ExecuteBackup {
-    suspend fun execute(backup: Backup, repository: StorageRepository) {
-        val now = LocalDateTime.now()
-        val formatter = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss")
-        val outputPath = "backup_${now.format(formatter)}.bck"
+    suspend fun execute(backupId: BackupId, backupRepository: BackupRepository, ssRegistry: StorageServiceRegistry) {
+        backupRepository.findById(backupId)?.let { backup ->
+            ssRegistry.getRepository(backup.storageService)?.let {
+                val now = LocalDateTime.now()
+                val formatter = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss")
+                val outputPath = "backup_${now.format(formatter)}.bck"
 
-        val backupFile =  File(outputPath)
-        try {
-            zipDirectory(backup.sourceDir, outputPath)
-            repository.push(backup.destinationDir, backupFile)
-        } finally {
-            if (backupFile.exists()) backupFile.delete()
-        }
+                val backupFile =  File(outputPath)
+                try {
+                    zipDirectory(backup.sourceDir, outputPath)
+                    it.push(backup.destinationDir, backupFile)
+                } finally {
+                    if (backupFile.exists()) backupFile.delete()
+                }
+            }
+        } ?: throw NoSuchElementException("Backup with id $backupId does not exist")
     }
 
     private fun zipDirectory(sourcePath: Path, outputPath: String) {

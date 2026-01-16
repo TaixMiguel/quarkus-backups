@@ -51,7 +51,7 @@ class BackupResource(
 
     @GET
     fun list(): Response {
-        val backups = listBackups.execute().stream().map(BackupResponse::from)
+        val backups = listBackups.execute().map(BackupResponse::from)
         return Response.ok(backups).build()
     }
 
@@ -66,15 +66,14 @@ class BackupResource(
     @GET
     @Path("/{backupID}/execute")
     suspend fun executeBackup(@PathParam("backupID") id: String): Response {
-        val backup = searchBackup.execute(BackupId(id))
-        return backup?.let { backup ->
-            ssRegistry.getRepository(backup.storageService)?.let {
-                executeBackup.execute(backup, it)
-                Response.status(Response.Status.CREATED).build()
-            } ?: Response.status(Response.Status.BAD_REQUEST)
-                    .entity("Storage service '${backup.storageService}' not supported")
-                    .build()
-        } ?: Response.status(Response.Status.NOT_FOUND).build()
+        return try {
+            executeBackup.execute(BackupId(id), repository, ssRegistry)
+            Response.status(Response.Status.CREATED).build()
+        } catch (e: NoSuchElementException) {
+            Response.status(Response.Status.NOT_FOUND).entity(e.message).build()
+        } catch (e: IllegalArgumentException) {
+            Response.status(Response.Status.BAD_REQUEST).entity(e.message).build()
+        }
     }
 
     private fun path(path: String): java.nio.file.Path {
