@@ -1,0 +1,14 @@
+.github
+.dockerignore
+.gitignore
+LICENSE
+README.md
+.git
+.idea
+.qodo
+
+**/target
+!**/target/*-runner
+!**/target/*-runner.jar
+!**/target/lib
+!**/target/quarkus-app
