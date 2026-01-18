@@ -1,4 +1,4 @@
-package com.github.taixmiguel.qbs.application.port
+package com.github.taixmiguel.qbs.application.port.storage
 
 interface StorageServiceProvider {
     fun name(): String

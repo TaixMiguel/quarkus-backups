@@ -1,6 +1,6 @@
 package com.github.taixmiguel.qbs.driven.storage.mega
 
-import com.github.taixmiguel.qbs.application.port.StorageRepository
+import com.github.taixmiguel.qbs.application.port.storage.StorageRepository
 import com.github.taixmiguel.qbs.driven.storage.mega.configuration.Properties
 import dev.carlsen.mega.Mega
 import dev.carlsen.mega.model.Node
@@ -8,6 +8,8 @@ import dev.carlsen.mega.util.CancellationToken
 import dev.carlsen.mega.util.ProgressCountingSink
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import kotlinx.io.buffered
 import kotlinx.io.files.SystemFileSystem
 import org.eclipse.microprofile.config.Config
@@ -54,7 +56,9 @@ class MegaStorageRepository: StorageRepository {
             val node = findNode(path, false) ?: return null
             val file = mega.getChildren(node).firstOrNull { it.name == filename } ?: return null
 
-            val tempFile = File.createTempFile("qbs-mega-", "-download")
+            val tempFile = withContext(Dispatchers.IO) {
+                File.createTempFile("qbs-mega-", "-download")
+            }
             val fileToDownload = kotlinx.io.files.Path(tempFile.absolutePath)
 
             try {

@@ -1,7 +1,7 @@
 package com.github.taixmiguel.qbs.driven.storage.mega
 
-import com.github.taixmiguel.qbs.application.port.StorageRepository
-import com.github.taixmiguel.qbs.application.port.StorageServiceProvider
+import com.github.taixmiguel.qbs.application.port.storage.StorageRepository
+import com.github.taixmiguel.qbs.application.port.storage.StorageServiceProvider
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 

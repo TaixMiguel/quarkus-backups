@@ -1,7 +1,7 @@
 package com.github.taixmiguel.qbs.application.usecase
 
-import com.github.taixmiguel.qbs.application.port.BackupRepository
-import com.github.taixmiguel.qbs.application.port.StorageServiceRegistry
+import com.github.taixmiguel.qbs.application.port.persistence.BackupRepository
+import com.github.taixmiguel.qbs.application.port.storage.StorageServiceRegistry
 import com.github.taixmiguel.qbs.application.usecase.commands.BackupCommand
 import com.github.taixmiguel.qbs.domain.BackupId
 
