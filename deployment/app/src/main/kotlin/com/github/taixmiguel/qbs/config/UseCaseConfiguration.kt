@@ -1,5 +1,6 @@
 package com.github.taixmiguel.qbs.config
 
+import com.github.taixmiguel.qbs.application.port.BackupCompressor
 import com.github.taixmiguel.qbs.application.port.BackupIdGenerator
 import com.github.taixmiguel.qbs.application.port.BackupRepository
 import com.github.taixmiguel.qbs.application.port.StorageServiceRegistry
@@ -8,8 +9,9 @@ import com.github.taixmiguel.qbs.application.usecase.ExecuteBackup
 import com.github.taixmiguel.qbs.application.usecase.ListBackups
 import com.github.taixmiguel.qbs.application.usecase.SearchBackup
 import jakarta.enterprise.context.ApplicationScoped
-import jakarta.ws.rs.Produces
+import jakarta.enterprise.inject.Produces
 
+@ApplicationScoped
 class UseCaseConfiguration {
     @Produces
     @ApplicationScoped
@@ -37,8 +39,9 @@ class UseCaseConfiguration {
     @ApplicationScoped
     fun executeBackup(
         repository: BackupRepository,
-        ssRegistry: StorageServiceRegistry
+        ssRegistry: StorageServiceRegistry,
+        compressor: BackupCompressor
     ): ExecuteBackup {
-        return ExecuteBackup(repository, ssRegistry)
+        return ExecuteBackup(repository, ssRegistry, compressor)
     }
 }
