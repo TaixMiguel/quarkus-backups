@@ -1,8 +1,5 @@
 package com.github.taixmiguel.qbs.driving.controller
 
-import com.github.taixmiguel.qbs.application.port.BackupIdGenerator
-import com.github.taixmiguel.qbs.application.port.BackupRepository
-import com.github.taixmiguel.qbs.application.port.StorageServiceRegistry
 import com.github.taixmiguel.qbs.application.usecase.CreateBackup
 import com.github.taixmiguel.qbs.application.usecase.ExecuteBackup
 import com.github.taixmiguel.qbs.application.usecase.ListBackups
@@ -11,6 +8,7 @@ import com.github.taixmiguel.qbs.application.usecase.commands.BackupCommand
 import com.github.taixmiguel.qbs.domain.BackupId
 import com.github.taixmiguel.qbs.driving.controller.dto.BackupResponse
 import com.github.taixmiguel.qbs.driving.controller.dto.CreateBackupRequest
+import jakarta.inject.Inject
 import jakarta.ws.rs.Consumes
 import jakarta.ws.rs.GET
 import jakarta.ws.rs.POST
@@ -23,16 +21,12 @@ import jakarta.ws.rs.core.Response
 @Path("/backup")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
-class BackupResource(
-    private val idGenerator: BackupIdGenerator,
-    private val repository: BackupRepository,
-    private val ssRegistry: StorageServiceRegistry
+class BackupResource @Inject constructor(
+    private val createBackup: CreateBackup,
+    private val searchBackup: SearchBackup,
+    private val listBackups: ListBackups,
+    private val executeBackup: ExecuteBackup
 ) {
-    private val createBackup = CreateBackup(idGenerator, repository, ssRegistry)
-    private val searchBackup = SearchBackup(repository)
-    private val listBackups = ListBackups(repository)
-    private val executeBackup = ExecuteBackup()
-
     @POST
     fun create(request: CreateBackupRequest): Response {
         val command = BackupCommand(
@@ -67,7 +61,7 @@ class BackupResource(
     @Path("/{backupID}/execute")
     suspend fun executeBackup(@PathParam("backupID") id: String): Response {
         return try {
-            executeBackup.execute(BackupId(id), repository, ssRegistry)
+            executeBackup.execute(BackupId(id))
             Response.status(Response.Status.CREATED).build()
         } catch (e: NoSuchElementException) {
             Response.status(Response.Status.NOT_FOUND).entity(e.message).build()

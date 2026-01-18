@@ -11,8 +11,11 @@ import java.time.format.DateTimeFormatter
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 
-class ExecuteBackup {
-    suspend fun execute(backupId: BackupId, backupRepository: BackupRepository, ssRegistry: StorageServiceRegistry) {
+class ExecuteBackup(
+    private val backupRepository: BackupRepository,
+    private val ssRegistry: StorageServiceRegistry
+) {
+    suspend fun execute(backupId: BackupId) {
         backupRepository.findById(backupId)?.let { backup ->
             ssRegistry.getRepository(backup.storageService)?.let {
                 val now = LocalDateTime.now()
