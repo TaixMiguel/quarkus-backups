@@ -58,10 +58,10 @@ class MegaStorageRepository: StorageRepository {
 
             val tempFile = withContext(Dispatchers.IO) {
                 File.createTempFile("qbs-mega-", "-download")
-            }
+            }.apply { deleteOnExit() }
             val fileToDownload = kotlinx.io.files.Path(tempFile.absolutePath)
 
-            try {
+            withContext(Dispatchers.IO) {
                 SystemFileSystem.sink(fileToDownload).use { fileOutputSink ->
                     mega.downloadFile(
                         src = file,
@@ -75,11 +75,8 @@ class MegaStorageRepository: StorageRepository {
                         cancellationToken = CancellationToken.default()
                     )
                 }
-                return tempFile
-            } catch (e: Exception) {
-                tempFile.delete()
-                throw e
             }
+            return tempFile
         } catch (e: Exception) {
             e.printStackTrace()
             return null
