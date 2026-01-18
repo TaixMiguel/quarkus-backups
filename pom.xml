@@ -15,6 +15,7 @@
 
         <module>deployment/app</module>
 
+        <module>driven-adapters/file-system</module>
         <module>driven-adapters/jpa-persistence</module>
         <module>driven-adapters/storage-mega</module>
 

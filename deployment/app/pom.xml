@@ -42,6 +42,11 @@
 
         <dependency>
             <groupId>com.github.taixmiguel.qbs.driven</groupId>
+            <artifactId>file-system</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.taixmiguel.qbs.driven</groupId>
             <artifactId>jpa-persistence</artifactId>
             <version>${project.version}</version>
         </dependency>
