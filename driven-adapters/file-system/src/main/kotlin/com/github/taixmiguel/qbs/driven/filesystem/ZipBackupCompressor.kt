@@ -1,6 +1,6 @@
 package com.github.taixmiguel.qbs.driven.filesystem
 
-import com.github.taixmiguel.qbs.application.port.BackupCompressor
+import com.github.taixmiguel.qbs.application.port.filesystem.BackupCompressor
 import jakarta.enterprise.context.ApplicationScoped
 import java.io.File
 import java.io.FileOutputStream

@@ -1,6 +1,6 @@
 package com.github.taixmiguel.qbs.application.usecase
 
-import com.github.taixmiguel.qbs.application.port.BackupRepository
+import com.github.taixmiguel.qbs.application.port.persistence.BackupRepository
 import com.github.taixmiguel.qbs.domain.Backup
 
 class ListBackups(private val repository: BackupRepository) {

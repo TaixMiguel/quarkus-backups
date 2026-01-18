@@ -1,8 +1,8 @@
 package com.github.taixmiguel.qbs
 
-import com.github.taixmiguel.qbs.application.port.StorageRepository
-import com.github.taixmiguel.qbs.application.port.StorageServiceProvider
-import com.github.taixmiguel.qbs.application.port.StorageServiceRegistry
+import com.github.taixmiguel.qbs.application.port.storage.StorageRepository
+import com.github.taixmiguel.qbs.application.port.storage.StorageServiceProvider
+import com.github.taixmiguel.qbs.application.port.storage.StorageServiceRegistry
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.enterprise.inject.Instance
 import jakarta.inject.Inject

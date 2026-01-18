@@ -1,4 +1,4 @@
-package com.github.taixmiguel.qbs.application.port
+package com.github.taixmiguel.qbs.application.port.persistence
 
 import com.github.taixmiguel.qbs.domain.Backup
 import com.github.taixmiguel.qbs.domain.BackupId

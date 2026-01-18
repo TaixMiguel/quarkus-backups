@@ -1,9 +1,9 @@
 package com.github.taixmiguel.qbs.config
 
-import com.github.taixmiguel.qbs.application.port.BackupCompressor
+import com.github.taixmiguel.qbs.application.port.filesystem.BackupCompressor
 import com.github.taixmiguel.qbs.application.port.BackupIdGenerator
-import com.github.taixmiguel.qbs.application.port.BackupRepository
-import com.github.taixmiguel.qbs.application.port.StorageServiceRegistry
+import com.github.taixmiguel.qbs.application.port.persistence.BackupRepository
+import com.github.taixmiguel.qbs.application.port.storage.StorageServiceRegistry
 import com.github.taixmiguel.qbs.application.usecase.CreateBackup
 import com.github.taixmiguel.qbs.application.usecase.ExecuteBackup
 import com.github.taixmiguel.qbs.application.usecase.ListBackups
