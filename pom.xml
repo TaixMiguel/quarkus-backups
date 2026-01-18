@@ -33,7 +33,7 @@
         <!-- Quarkus -->
         <quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
         <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
-        <quarkus.platform.version>3.18.2</quarkus.platform.version>
+        <quarkus.platform.version>3.30.6</quarkus.platform.version>
 
         <!-- Testing -->
         <junit.version>5.11.4</junit.version>
@@ -45,9 +45,9 @@
         <jandex-maven-plugin.version>3.2.2</jandex-maven-plugin.version>
 
         <!-- Test Configuration -->
-        <skipITs>true</skipITs>
-        <skipTests>false</skipTests> <!-- Cambiar a true para saltar TODOS los tests -->
-        <quarkus.test.skip>true</quarkus.test.skip> <!-- Deshabilita tests de Quarkus por defecto -->
+        <skipITs>false</skipITs>
+        <skipTests>false</skipTests>
+        <quarkus.test.skip>false</quarkus.test.skip>
     </properties>
 
     <dependencyManagement>
