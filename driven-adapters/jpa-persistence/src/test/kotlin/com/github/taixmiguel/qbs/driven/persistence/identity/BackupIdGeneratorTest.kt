@@ -1,8 +1,8 @@
 package com.github.taixmiguel.qbs.driven.persistence.identity
 
 import org.junit.jupiter.api.Assertions.assertDoesNotThrow
+import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertNotNull
 import java.util.*
 
 class BackupIdGeneratorTest {
