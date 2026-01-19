@@ -8,6 +8,7 @@ import com.github.taixmiguel.qbs.application.usecase.commands.BackupCommand
 import com.github.taixmiguel.qbs.domain.BackupId
 import com.github.taixmiguel.qbs.driving.controller.dto.BackupResponse
 import com.github.taixmiguel.qbs.driving.controller.dto.CreateBackupRequest
+import io.smallrye.common.annotation.Blocking
 import jakarta.inject.Inject
 import jakarta.ws.rs.Consumes
 import jakarta.ws.rs.GET
@@ -17,7 +18,11 @@ import jakarta.ws.rs.PathParam
 import jakarta.ws.rs.Produces
 import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
+@Blocking
 @Path("/backup")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
@@ -51,7 +56,7 @@ class BackupResource @Inject constructor(
 
     @GET
     @Path("/{backupID}")
-    fun getBackup(@PathParam("backupID") id: String): Response {
+    fun get(@PathParam("backupID") id: String): Response {
         val backup = searchBackup.execute(BackupId(id))
         return backup?.let { Response.ok(BackupResponse.from(it)).build() }
             ?: Response.status(Response.Status.NOT_FOUND).build()
@@ -59,15 +64,19 @@ class BackupResource @Inject constructor(
 
     @GET
     @Path("/{backupID}/execute")
-    suspend fun executeBackup(@PathParam("backupID") id: String): Response {
-        return try {
-            executeBackup.execute(BackupId(id))
-            Response.status(Response.Status.CREATED).build()
-        } catch (e: NoSuchElementException) {
-            Response.status(Response.Status.NOT_FOUND).entity(e.message).build()
-        } catch (e: IllegalArgumentException) {
-            Response.status(Response.Status.BAD_REQUEST).entity(e.message).build()
-        }
+    fun execute(@PathParam("backupID") id: String): Response {
+        val backup = searchBackup.execute(BackupId(id))
+
+        return backup?.let {
+            CoroutineScope(Dispatchers.IO).launch {
+                try {
+                    executeBackup.execute(BackupId(id))
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
+            Response.status(Response.Status.ACCEPTED).build()
+        } ?: Response.status(Response.Status.NOT_FOUND).build()
     }
 
     private fun path(path: String): java.nio.file.Path {
