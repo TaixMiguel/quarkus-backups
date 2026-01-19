@@ -65,8 +65,18 @@ class BackupResource @Inject constructor(
     @GET
     @Path("/{backupID}/execute")
     fun execute(@PathParam("backupID") id: String): Response {
-        CoroutineScope(Dispatchers.IO).launch { executeBackup.execute(BackupId(id)) }
-        return Response.status(Response.Status.ACCEPTED).build()
+        val backup = searchBackup.execute(BackupId(id))
+
+        return backup?.let {
+            CoroutineScope(Dispatchers.IO).launch {
+                try {
+                    executeBackup.execute(BackupId(id))
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
+            Response.status(Response.Status.ACCEPTED).build()
+        } ?: Response.status(Response.Status.NOT_FOUND).build()
     }
 
     private fun path(path: String): java.nio.file.Path {
