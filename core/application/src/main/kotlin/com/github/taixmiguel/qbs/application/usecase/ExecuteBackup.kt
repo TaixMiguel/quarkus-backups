@@ -22,16 +22,17 @@ class ExecuteBackup(
                 ?: throw IllegalArgumentException("Storage service '${backup.storageService}' not found")
 
             val bckInstance = BackupInstance.create(backup = backup)
-            val bckFile = compress(bckInstance)
+            var bckFile: File? = null
 
             try {
+                bckFile = compress(bckInstance)
                 upload(bckInstance, bckFile, storageRepo)
             } catch (e: Exception) {
                 bckInstance.state = BackupState.ERROR
                 e.printStackTrace()
             } finally {
                 backupRepository.save(bckInstance)
-                if (bckFile.exists()) bckFile.delete()
+                bckFile?.delete()
             }
         } ?: throw NoSuchElementException("Backup with id $backupId does not exist")
     }
