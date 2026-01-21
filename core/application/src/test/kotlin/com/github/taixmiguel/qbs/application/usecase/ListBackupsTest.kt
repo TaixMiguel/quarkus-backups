@@ -3,6 +3,7 @@ package com.github.taixmiguel.qbs.application.usecase
 import com.github.taixmiguel.qbs.application.port.persistence.BackupRepository
 import com.github.taixmiguel.qbs.domain.Backup
 import com.github.taixmiguel.qbs.domain.BackupId
+import com.github.taixmiguel.qbs.domain.BackupInstance
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Test
@@ -22,9 +23,11 @@ class ListBackupsTest {
     private class FakeBackupRepository: BackupRepository {
         var backups: MutableList<Backup> = mutableListOf()
         init {
-            backups.add(Backup(id = BackupId("backup-1"), name = "backup one", description = "backup description", storageService = "local storage",
+            backups.add(Backup(
+                id = BackupId("backup-1"), name = "backup one", description = "backup description", storageService = "local storage",
                 sourceDir = Path("src"), destinationDir = Path("dst")))
-            backups.add(Backup(id = BackupId("backup-2"), name = "backup two", description = "backup description", storageService = "local storage",
+            backups.add(Backup(
+                id = BackupId("backup-2"), name = "backup two", description = "backup description", storageService = "local storage",
                 sourceDir = Path("src"), destinationDir = Path("dst")))
         }
 
@@ -37,5 +40,8 @@ class ListBackupsTest {
         }
 
         override fun findAll(): List<Backup> = backups
+        override fun save(backup: BackupInstance) {
+            TODO("Not yet implemented")
+        }
     }
 }

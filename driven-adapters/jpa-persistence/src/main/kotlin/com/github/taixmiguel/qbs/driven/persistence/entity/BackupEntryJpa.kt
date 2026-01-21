@@ -2,6 +2,7 @@ package com.github.taixmiguel.qbs.driven.persistence.entity
 
 import jakarta.persistence.Entity
 import jakarta.persistence.Id
+import jakarta.persistence.OneToMany
 import jakarta.persistence.Table
 
 @Entity
@@ -18,4 +19,7 @@ class BackupEntryJpa {
     var password: String? = null
     var nBackupsMax: Int = 0
     var swSensorMQTT: Boolean = false
+
+    @OneToMany(mappedBy = "backup")
+    val instances: List<BackupInstanceEntryJpa> = listOf()
 }

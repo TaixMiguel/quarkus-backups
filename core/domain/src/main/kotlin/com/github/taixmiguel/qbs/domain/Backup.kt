@@ -16,7 +16,7 @@ data class Backup(
     val password: String? = null,
     val nBackupsMax: Int = 15,
     val swSensorMQTT: Boolean = false,
-    val history: List<BackupHistory> = listOf()
+    val instances: MutableList<BackupInstance> = mutableListOf()
 ) {
     init {
         require(name.isNotBlank()) { "El nombre no puede estar vacío" }
@@ -30,9 +30,11 @@ data class Backup(
         require(nBackupsMax > 0) { "El parámetro nBackupsMax debe ser superior a 0" }
     }
 
+    fun add(instance: BackupInstance) { instances.add(instance) }
+
     override fun toString(): String {
         return "Backup(id=$id, name='$name', description='$description', storageService='$storageService', " +
                 "sourceDir=$sourceDir, destinationDir=$destinationDir, username=$username, " +
-                "nBackupsMax=$nBackupsMax, swSensorMQTT=$swSensorMQTT, history=$history)"
+                "nBackupsMax=$nBackupsMax, swSensorMQTT=$swSensorMQTT, instances=$instances)"
     }
 }

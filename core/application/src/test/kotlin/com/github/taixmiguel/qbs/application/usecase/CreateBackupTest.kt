@@ -7,6 +7,7 @@ import com.github.taixmiguel.qbs.application.port.storage.StorageServiceRegistry
 import com.github.taixmiguel.qbs.application.usecase.commands.BackupCommand
 import com.github.taixmiguel.qbs.domain.Backup
 import com.github.taixmiguel.qbs.domain.BackupId
+import com.github.taixmiguel.qbs.domain.BackupInstance
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNotNull
@@ -59,6 +60,10 @@ class CreateBackupTest {
         }
 
         override fun findAll(): List<Backup> {
+            TODO("Not yet implemented")
+        }
+
+        override fun save(backup: BackupInstance) {
             TODO("Not yet implemented")
         }
     }
