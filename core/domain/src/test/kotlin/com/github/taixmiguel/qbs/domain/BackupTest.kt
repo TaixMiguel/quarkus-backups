@@ -25,7 +25,7 @@ class BackupTest {
         assertNull(backup.password)
         assertEquals(15, backup.nBackupsMax)
         assertFalse(backup.swSensorMQTT)
-        assertEquals(0, backup.history.size)
+        assertEquals(0, backup.instances.size)
     }
 
     @Test

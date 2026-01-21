@@ -3,16 +3,20 @@ package com.github.taixmiguel.qbs.driven.persistence
 import com.github.taixmiguel.qbs.application.port.persistence.BackupRepository
 import com.github.taixmiguel.qbs.domain.Backup
 import com.github.taixmiguel.qbs.domain.BackupId
+import com.github.taixmiguel.qbs.domain.BackupInstance
 import com.github.taixmiguel.qbs.driven.persistence.entity.BackupEntryJpa
+import com.github.taixmiguel.qbs.driven.persistence.entity.BackupInstanceEntryJpa
 import io.quarkus.hibernate.orm.panache.kotlin.PanacheRepositoryBase
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.transaction.Transactional
 import java.nio.file.Path
+import kotlin.String
 
 @ApplicationScoped
-class BackupRepositoryPanacheJPA : BackupRepository {
+class BackupRepositoryPanacheJPA: BackupRepository {
 
-    private val panacheRepository = object : PanacheRepositoryBase<BackupEntryJpa, String> {}
+    private val panacheBckRepository = object : PanacheRepositoryBase<BackupEntryJpa, String> {}
+    private val panacheBckInstanceRepository = object : PanacheRepositoryBase<BackupInstanceEntryJpa, String> {}
 
     @Transactional
     override fun save(backup: Backup) {
@@ -28,19 +32,38 @@ class BackupRepositoryPanacheJPA : BackupRepository {
             nBackupsMax = backup.nBackupsMax
             swSensorMQTT = backup.swSensorMQTT
         }
-        panacheRepository.persist(entity)
+        panacheBckRepository.persist(entity)
     }
 
+    @Transactional
     override fun findById(id: BackupId): Backup? {
-        return panacheRepository.findById(id.value)?.let { toDomain(it) }
+        return panacheBckRepository.findById(id.value)?.let { toDomain(it) }
     }
 
+    @Transactional
     override fun findAll(): List<Backup> {
-        return panacheRepository.listAll().map { toDomain(it) }
+        return panacheBckRepository.listAll().map { toDomain(it) }
+    }
+
+    @Transactional
+    override fun save(bck: BackupInstance) {
+        val backupEntity = panacheBckRepository.findById(bck.backup.id.value)
+            ?: throw IllegalStateException("Backup not found for id: ${bck.backup.id.value}")
+
+        val entity = BackupInstanceEntryJpa().apply {
+            id = bck.id
+            backup = backupEntity
+            name = bck.name
+            size = bck.size
+            state = bck.state
+            createdAt = bck.createdAt
+            duration = bck.duration
+        }
+        panacheBckInstanceRepository.persist(entity)
     }
 
     private fun toDomain(entity: BackupEntryJpa): Backup {
-        return Backup(
+        val backup = Backup(
             id = BackupId(entity.id),
             name = entity.name,
             description = entity.description,
@@ -50,9 +73,21 @@ class BackupRepositoryPanacheJPA : BackupRepository {
             username = entity.username,
             password = entity.password,
             nBackupsMax = entity.nBackupsMax,
-            swSensorMQTT = entity.swSensorMQTT,
-            // TODO: Map history from the entity. The BackupEntryJpa entity needs to be updated to store history.
-            history = listOf()
+            swSensorMQTT = entity.swSensorMQTT
+        )
+        entity.instances.forEach { backup.add(toDomain(backup, it)) }
+        return backup
+    }
+
+    private fun toDomain(backup: Backup, entity: BackupInstanceEntryJpa): BackupInstance {
+        return BackupInstance(
+            id = entity.id,
+            backup = backup,
+            name = entity.name,
+            size = entity.size,
+            state = entity.state,
+            createdAt = entity.createdAt,
+            duration = entity.duration
         )
     }
 }
