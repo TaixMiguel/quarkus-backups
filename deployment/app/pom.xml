@@ -59,10 +59,15 @@
             <artifactId>quarkus-kotlin</artifactId>
         </dependency>
 
-        <!-- Kotlin -->
+        <!-- Kotlin - IMPORTANT: Add kotlin-reflect for GraalVM -->
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
             <artifactId>kotlin-stdlib</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-reflect</artifactId>
+            <version>${kotlin.version}</version>
         </dependency>
 
         <!-- Testing -->
