@@ -64,6 +64,5 @@ jobs:
           context: .
           push: true
           file: deployment/app/src/main/docker/Dockerfile
-          #tags: ${{ env.REGISTRY }}/taixmiguel/quarkus-backups:latest
-          tags: ${{ env.REGISTRY }}/${{ tolower(github.repository) }}:latest
+          tags: ${{ env.REGISTRY }}/taixmiguel/quarkus-backups:latest
           platforms: linux/amd64,linux/arm64
