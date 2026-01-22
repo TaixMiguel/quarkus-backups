@@ -16,9 +16,6 @@ COPY driven-adapters/jpa-persistence/pom.xml driven-adapters/jpa-persistence/
 COPY driven-adapters/storage-mega/pom.xml driven-adapters/storage-mega/
 COPY driving-adapters/rest-controller/pom.xml driving-adapters/rest-controller/
 
-# Download dependencies to a cacheable layer
-RUN mvn -B dependency:go-offline
-
 # Copy all source code
 COPY core/ core/
 COPY driven-adapters/ driven-adapters/
