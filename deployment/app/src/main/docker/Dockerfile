@@ -1,42 +1,49 @@
-FROM quay.io/quarkus/ubi-quarkus-mandrel-builder-image:23.0-java21 AS build
+FROM registry.access.redhat.com/ubi9/openjdk-21:1.20 AS build
+
+# Install required tools for Maven wrapper
+USER 0
+RUN microdnf install -y gzip tar && microdnf clean all
+
 WORKDIR /app/
 
 # Copy Maven wrapper files first
-COPY --chown=quarkus:quarkus deployment/app/.mvn deployment/app/.mvn
-COPY --chown=quarkus:quarkus deployment/app/mvnw deployment/app/mvnw
+COPY deployment/app/.mvn deployment/app/.mvn
+COPY deployment/app/mvnw deployment/app/mvnw
 
 # Copy all POM files for dependency resolution (cacheable layer)
-COPY --chown=quarkus:quarkus pom.xml .
-COPY --chown=quarkus:quarkus core/application/pom.xml core/application/
-COPY --chown=quarkus:quarkus core/domain/pom.xml core/domain/
-COPY --chown=quarkus:quarkus deployment/app/pom.xml deployment/app/
-COPY --chown=quarkus:quarkus driven-adapters/file-system/pom.xml driven-adapters/file-system/
-COPY --chown=quarkus:quarkus driven-adapters/jpa-persistence/pom.xml driven-adapters/jpa-persistence/
-COPY --chown=quarkus:quarkus driven-adapters/storage-mega/pom.xml driven-adapters/storage-mega/
-COPY --chown=quarkus:quarkus driving-adapters/rest-controller/pom.xml driving-adapters/rest-controller/
+COPY pom.xml .
+COPY core/application/pom.xml core/application/
+COPY core/domain/pom.xml core/domain/
+COPY deployment/app/pom.xml deployment/app/
+COPY driven-adapters/file-system/pom.xml driven-adapters/file-system/
+COPY driven-adapters/jpa-persistence/pom.xml driven-adapters/jpa-persistence/
+COPY driven-adapters/storage-mega/pom.xml driven-adapters/storage-mega/
+COPY driving-adapters/rest-controller/pom.xml driving-adapters/rest-controller/
 
-# Download dependencies using the parent POM (this caches dependencies)
+# Download dependencies (this caches dependencies)
 RUN deployment/app/mvnw dependency:go-offline -f pom.xml
 
-# Now copy all source code
-COPY --chown=quarkus:quarkus core/ core/
-COPY --chown=quarkus:quarkus driven-adapters/ driven-adapters/
-COPY --chown=quarkus:quarkus driving-adapters/ driving-adapters/
-COPY --chown=quarkus:quarkus deployment/app/src deployment/app/src
+# Copy all source code
+COPY core/ core/
+COPY driven-adapters/ driven-adapters/
+COPY driving-adapters/ driving-adapters/
+COPY deployment/app/src deployment/app/src
 
-# Build the native executable
-RUN deployment/app/mvnw package -Dnative -DskipTests -f deployment/app/pom.xml
+# Build all modules first (install to local repo), then build the app
+RUN deployment/app/mvnw clean install -DskipTests -f pom.xml
 
-# Runtime stage
-FROM registry.access.redhat.com/ubi9/ubi-minimal:9.7
+# Runtime stage - much smaller image
+FROM registry.access.redhat.com/ubi9/openjdk-21-runtime:1.20
+ENV LANGUAGE='en_US:en'
 WORKDIR /work/
-RUN chown 1001 /work \
-    && chmod "g+rwX" /work \
-    && chown 1001:root /work
 
-COPY --chown=1001:root --chmod=0755 --from=build /app/deployment/app/target/*-runner /work/application
+# Copy the built artifacts
+COPY --chown=185 --from=build /app/deployment/app/target/quarkus-app/lib/ /work/lib/
+COPY --chown=185 --from=build /app/deployment/app/target/quarkus-app/*.jar /work/
+COPY --chown=185 --from=build /app/deployment/app/target/quarkus-app/app/ /work/app/
+COPY --chown=185 --from=build /app/deployment/app/target/quarkus-app/quarkus/ /work/quarkus/
 
 EXPOSE 8080
-USER 1001
+USER 185
 
-ENTRYPOINT ["./application", "-Dquarkus.http.host=0.0.0.0"]
+ENTRYPOINT ["java", "-Dquarkus.http.host=0.0.0.0", "-jar", "/work/quarkus-run.jar"]
