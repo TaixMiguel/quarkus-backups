@@ -1,0 +1,68 @@
+name: CI build docker container
+
+on:
+  schedule:
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+
+permissions:
+  packages: write
+
+env:
+  REGISTRY: ghcr.io
+
+jobs:
+  check_commits:
+    name: Check for recent commits
+    runs-on: ubuntu-latest
+    outputs:
+      should_build: ${{ steps.check.outputs.should_build }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check for commits in last 24 hours
+        id: check
+        run: |
+          SINCE=$(date -d '24 hours ago' +%s)
+          RECENT_COMMITS=$(git log --since="24 hours ago" --oneline)
+          
+          if [ -n "$RECENT_COMMITS" ]; then
+            echo "Found commits in the last 24 hours:"
+            echo "$RECENT_COMMITS"
+            echo "should_build=true" >> $GITHUB_OUTPUT
+          else
+            echo "No commits found in the last 24 hours"
+            echo "should_build=false" >> $GITHUB_OUTPUT
+          fi
+
+  build_and_upload:
+    name: Docker build and upload
+    runs-on: ubuntu-latest
+    needs: check_commits
+    if: needs.check_commits.outputs.should_build == 'true'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          file: deployment/app/src/main/docker/Dockerfile
+          tags: ${{ env.REGISTRY }}/taixmiguel/quarkus-backups:latest
+          platforms: linux/amd64,linux/arm64
