@@ -33,16 +33,16 @@
         <!-- Quarkus -->
         <quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
         <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
-        <quarkus.platform.version>3.30.6</quarkus.platform.version>
+        <quarkus.platform.version>3.30.7</quarkus.platform.version>
 
         <!-- Testing -->
-        <junit.version>5.11.4</junit.version>
+        <junit.version>6.0.2</junit.version>
 
         <!-- Plugins -->
         <maven-compiler-plugin.version>3.14.1</maven-compiler-plugin.version>
         <maven-surefire-plugin.version>3.5.4</maven-surefire-plugin.version>
         <maven-failsafe-plugin.version>3.5.4</maven-failsafe-plugin.version>
-        <jandex-maven-plugin.version>3.2.2</jandex-maven-plugin.version>
+        <jandex-maven-plugin.version>3.5.3</jandex-maven-plugin.version>
 
         <!-- Test Configuration -->
         <skipITs>false</skipITs>
