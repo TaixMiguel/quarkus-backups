@@ -20,7 +20,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 50
+          fetch-depth: 0
 
       - name: Check for commits in last 24 hours
         id: check
@@ -64,5 +64,6 @@ jobs:
           context: .
           push: true
           file: deployment/app/src/main/docker/Dockerfile
-          tags: ${{ env.REGISTRY }}/taixmiguel/quarkus-backups:latest
+          #tags: ${{ env.REGISTRY }}/taixmiguel/quarkus-backups:latest
+          tags: ${{ env.REGISTRY }}/${{ tolower(github.repository) }}:latest
           platforms: linux/amd64,linux/arm64
