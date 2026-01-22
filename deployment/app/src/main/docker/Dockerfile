@@ -1,4 +1,4 @@
-FROM quay.io/quarkus/ubi-quarkus-mandrel-builder-image:jdk-21 AS build
+FROM quay.io/quarkus/ubi-quarkus-mandrel-builder-image:23.0-java21 AS build
 WORKDIR /app/
 
 # Copy Maven wrapper files first
@@ -15,7 +15,7 @@ COPY --chown=quarkus:quarkus driven-adapters/jpa-persistence/pom.xml driven-adap
 COPY --chown=quarkus:quarkus driven-adapters/storage-mega/pom.xml driven-adapters/storage-mega/
 COPY --chown=quarkus:quarkus driving-adapters/rest-controller/pom.xml driving-adapters/rest-controller/
 
-# Download external dependencies (this caches external deps)
+# Download dependencies using the parent POM (this caches dependencies)
 RUN deployment/app/mvnw dependency:go-offline -f pom.xml
 
 # Now copy all source code
@@ -23,9 +23,6 @@ COPY --chown=quarkus:quarkus core/ core/
 COPY --chown=quarkus:quarkus driven-adapters/ driven-adapters/
 COPY --chown=quarkus:quarkus driving-adapters/ driving-adapters/
 COPY --chown=quarkus:quarkus deployment/app/src deployment/app/src
-
-# Build and install all internal modules first (this makes them available as dependencies)
-RUN deployment/app/mvnw clean install -DskipTests -f pom.xml
 
 # Build the native executable
 RUN deployment/app/mvnw package -Dnative -DskipTests -f deployment/app/pom.xml
