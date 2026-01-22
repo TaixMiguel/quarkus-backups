@@ -1,14 +1,10 @@
 FROM registry.access.redhat.com/ubi9/openjdk-21:1.20 AS build
 
-# Install required tools for Maven wrapper
+# Install Maven and required tools
 USER 0
-RUN microdnf install -y gzip tar && microdnf clean all
+RUN microdnf install -y maven && microdnf clean all
 
 WORKDIR /app/
-
-# Copy Maven wrapper files first
-COPY deployment/app/.mvn deployment/app/.mvn
-COPY deployment/app/mvnw deployment/app/mvnw
 
 # Copy all POM files for dependency resolution (cacheable layer)
 COPY pom.xml .
@@ -26,10 +22,10 @@ COPY driven-adapters/ driven-adapters/
 COPY driving-adapters/ driving-adapters/
 COPY deployment/app/src deployment/app/src
 
-# Build everything in one step (avoids tar issues in ARM64 emulation)
-RUN deployment/app/mvnw -B clean install -DskipTests -f pom.xml
+# Build everything using system Maven
+RUN mvn -B clean install -DskipTests -f pom.xml
 
-# Runtime stage - much smaller image
+# Runtime stage
 FROM registry.access.redhat.com/ubi9/openjdk-21-runtime:1.20
 ENV LANGUAGE='en_US:en'
 WORKDIR /work/
