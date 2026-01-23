@@ -32,6 +32,10 @@
         </dependency>
         <dependency>
             <groupId>com.github.taixmiguel.qbs.driven</groupId>
+            <artifactId>mqtt-publisher</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.github.taixmiguel.qbs.driven</groupId>
             <artifactId>storage-local</artifactId>
         </dependency>
         <dependency>

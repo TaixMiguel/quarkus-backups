@@ -13,6 +13,8 @@ COPY core/domain/pom.xml core/domain/
 COPY deployment/app/pom.xml deployment/app/
 COPY driven-adapters/file-system/pom.xml driven-adapters/file-system/
 COPY driven-adapters/jpa-persistence/pom.xml driven-adapters/jpa-persistence/
+COPY driven-adapters/mqtt-publisher/pom.xml driven-adapters/mqtt-publisher/
+COPY driven-adapters/storage-local/pom.xml driven-adapters/storage-local/
 COPY driven-adapters/storage-mega/pom.xml driven-adapters/storage-mega/
 COPY driving-adapters/rest-controller/pom.xml driving-adapters/rest-controller/
 
