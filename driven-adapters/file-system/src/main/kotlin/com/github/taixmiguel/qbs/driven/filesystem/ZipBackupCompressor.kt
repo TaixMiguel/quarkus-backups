@@ -27,7 +27,7 @@ class ZipBackupCompressor: BackupCompressor {
                         zipOut.putNextEntry(ZipEntry("$zipEntryName/"))
                         zipOut.closeEntry()
                     }
-                } else {
+                } else if (file.isFile && file.canRead()) {
                     val entry = ZipEntry(zipEntryName)
                     zipOut.putNextEntry(entry)
                     file.inputStream().use { input -> input.copyTo(zipOut) }
