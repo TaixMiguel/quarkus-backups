@@ -4,6 +4,7 @@ import com.github.taixmiguel.qbs.application.port.filesystem.BackupCompressor
 import jakarta.enterprise.context.ApplicationScoped
 import java.io.File
 import java.io.FileOutputStream
+import java.io.IOException
 import java.nio.file.Files
 import java.nio.file.Path
 import java.util.zip.ZipEntry
@@ -28,10 +29,14 @@ class ZipBackupCompressor: BackupCompressor {
                         zipOut.closeEntry()
                     }
                 } else if (file.isFile && file.canRead()) {
-                    val entry = ZipEntry(zipEntryName)
-                    zipOut.putNextEntry(entry)
-                    file.inputStream().use { input -> input.copyTo(zipOut) }
-                    zipOut.closeEntry()
+                    try {
+                        val entry = ZipEntry(zipEntryName)
+                        zipOut.putNextEntry(entry)
+                        file.inputStream().use { input -> input.copyTo(zipOut) }
+                        zipOut.closeEntry()
+                    } catch (e: IOException) {
+                        e.printStackTrace()
+                    }
                 }
             }
         }

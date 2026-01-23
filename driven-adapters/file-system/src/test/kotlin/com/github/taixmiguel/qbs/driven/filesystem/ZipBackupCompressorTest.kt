@@ -56,8 +56,10 @@ class ZipBackupCompressorTest {
             val backupFile = compressor.compress(tempDir)
             
             assertTrue(backupFile.exists())
-            // Verification: The zip should exist, and arguably shouldn't contain the restricted file content
-            // We mainly care that it didn't throw an exception.
+            // Verification: The zip should exist and be empty, as the only file was not readable.
+            java.util.zip.ZipFile(backupFile).use { zip ->
+                assertTrue(zip.entries().hasMoreElements().not(), "Zip file should be empty")
+            }
         } finally {
             // Restore permissions so cleanup can happen
             file.setReadable(true)
