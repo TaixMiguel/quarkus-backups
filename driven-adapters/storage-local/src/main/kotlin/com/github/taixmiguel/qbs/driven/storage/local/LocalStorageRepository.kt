@@ -15,21 +15,20 @@ class LocalStorageRepository: StorageRepository {
         val source = Path.of(file.absolutePath)
         val target = Path.of(pathToUpload.toString(), file.name)
 
-        try {
-            withContext(Dispatchers.IO) {
-                Files.createDirectory(pathToUpload)
-                Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING)
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
+        withContext(Dispatchers.IO) {
+            Files.createDirectories(pathToUpload)
+            Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING)
         }
     }
 
     override suspend fun pull(path: Path, filename: String): File? {
-        return File(path.toString(), filename)
+        val file = File(path.toString(), filename)
+        return if (file.exists()) file else null
     }
 
     override suspend fun remove(path: Path, filename: String) {
-        File(path.toString(), filename).delete()
+        val file = File(path.toString(), filename)
+        if (file.exists() && !file.delete())
+            throw java.io.IOException("Failed to delete file: $file")
     }
 }
