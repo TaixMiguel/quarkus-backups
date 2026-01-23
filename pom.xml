@@ -15,6 +15,7 @@
         <module>core/application</module>
         <module>driven-adapters/file-system</module>
         <module>driven-adapters/jpa-persistence</module>
+        <module>driven-adapters/mqtt-publisher</module>
         <module>driven-adapters/storage-local</module>
         <module>driven-adapters/storage-mega</module>
         <module>driving-adapters/rest-controller</module>
@@ -81,6 +82,11 @@
             <dependency>
                 <groupId>com.github.taixmiguel.qbs.driven</groupId>
                 <artifactId>jpa-persistence</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.taixmiguel.qbs.driven</groupId>
+                <artifactId>mqtt-publisher</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

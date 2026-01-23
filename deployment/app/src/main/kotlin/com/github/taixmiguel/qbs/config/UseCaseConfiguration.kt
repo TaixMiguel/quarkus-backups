@@ -3,6 +3,7 @@ package com.github.taixmiguel.qbs.config
 import com.github.taixmiguel.qbs.application.port.filesystem.BackupCompressor
 import com.github.taixmiguel.qbs.application.port.BackupIdGenerator
 import com.github.taixmiguel.qbs.application.port.persistence.BackupRepository
+import com.github.taixmiguel.qbs.application.port.publisher.MessagePublisher
 import com.github.taixmiguel.qbs.application.port.storage.StorageServiceRegistry
 import com.github.taixmiguel.qbs.application.usecase.CreateBackup
 import com.github.taixmiguel.qbs.application.usecase.ExecuteBackup
@@ -40,8 +41,9 @@ class UseCaseConfiguration {
     fun executeBackup(
         repository: BackupRepository,
         ssRegistry: StorageServiceRegistry,
-        compressor: BackupCompressor
+        compressor: BackupCompressor,
+        msgPublisher: MessagePublisher
     ): ExecuteBackup {
-        return ExecuteBackup(repository, ssRegistry, compressor)
+        return ExecuteBackup(repository, ssRegistry, compressor, msgPublisher)
     }
 }
