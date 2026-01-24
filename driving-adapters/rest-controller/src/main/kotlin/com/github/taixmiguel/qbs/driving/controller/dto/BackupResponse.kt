@@ -17,8 +17,8 @@ data class BackupResponse(
         fun from(backup: Backup): BackupResponse =
             BackupResponse(
                 id = backup.id.value,
-                name = backup.name,
-                description = backup.description,
+                name = backup.name.value,
+                description = backup.description.value,
                 storageService = backup.storageService,
                 sourceDir = backup.sourceDir.toString(),
                 destinationDir = backup.destinationDir.toString(),

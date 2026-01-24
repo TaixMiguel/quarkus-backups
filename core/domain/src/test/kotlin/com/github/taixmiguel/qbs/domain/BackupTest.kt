@@ -1,6 +1,8 @@
 package com.github.taixmiguel.qbs.domain
 
+import com.github.taixmiguel.qbs.domain.valueobjects.BackupDescription
 import com.github.taixmiguel.qbs.domain.valueobjects.BackupId
+import com.github.taixmiguel.qbs.domain.valueobjects.BackupName
 import com.github.taixmiguel.qbs.domain.valueobjects.DirectoryPath
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
@@ -14,8 +16,8 @@ class BackupTest {
     fun `should create a backup with default values`() {
         val backup = Backup(
             id = BackupId("backup-1"),
-            name = "Backup name",
-            description = "Backup description",
+            name = BackupName("Backup name"),
+            description = BackupDescription("Backup description"),
             storageService = "storage-service",
             sourceDir = DirectoryPath("src"),
             destinationDir = DirectoryPath("src")
@@ -34,8 +36,8 @@ class BackupTest {
         assertThrows(IllegalArgumentException::class.java) {
             Backup(
                 id = BackupId("backup-2"),
-                name = "",
-                description = "",
+                name = BackupName(""),
+                description = BackupDescription(""),
                 storageService = "",
                 sourceDir = DirectoryPath("src"),
                 destinationDir = DirectoryPath("src")
@@ -48,8 +50,8 @@ class BackupTest {
         assertThrows(IllegalArgumentException::class.java) {
             Backup(
                 id = BackupId("backup-3"),
-                name = "Backup name",
-                description = "",
+                name = BackupName("Backup name"),
+                description = BackupDescription(""),
                 storageService = "",
                 sourceDir = DirectoryPath("src"),
                 destinationDir = DirectoryPath("src")
@@ -62,8 +64,8 @@ class BackupTest {
         assertThrows(IllegalArgumentException::class.java) {
             Backup(
                 id = BackupId("backup-4"),
-                name = "Backup name",
-                description = "Backup description",
+                name = BackupName("Backup name"),
+                description = BackupDescription("Backup description"),
                 storageService = "",
                 sourceDir = DirectoryPath("src"),
                 destinationDir = DirectoryPath("src")

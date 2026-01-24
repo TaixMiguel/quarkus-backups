@@ -4,6 +4,8 @@ import com.github.taixmiguel.qbs.application.port.persistence.BackupRepository
 import com.github.taixmiguel.qbs.domain.Backup
 import com.github.taixmiguel.qbs.domain.valueobjects.BackupId
 import com.github.taixmiguel.qbs.domain.BackupInstance
+import com.github.taixmiguel.qbs.domain.valueobjects.BackupDescription
+import com.github.taixmiguel.qbs.domain.valueobjects.BackupName
 import com.github.taixmiguel.qbs.domain.valueobjects.DirectoryPath
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull
@@ -28,7 +30,8 @@ class SearchBackupTest {
         var backups: MutableList<Backup> = mutableListOf()
         init {
             backups.add(Backup(
-                id = BackupId("backup-1"), name = "backup one", description = "backup description", storageService = "local storage",
+                id = BackupId("backup-1"), name = BackupName("backup one"),
+                description = BackupDescription("backup description"), storageService = "local storage",
                 sourceDir = DirectoryPath("src"), destinationDir = DirectoryPath("dst")))
         }
 

@@ -4,7 +4,9 @@ import com.github.taixmiguel.qbs.application.port.filesystem.FileSystemValidator
 import com.github.taixmiguel.qbs.application.port.persistence.BackupRepository
 import com.github.taixmiguel.qbs.application.port.storage.StorageServiceRegistry
 import com.github.taixmiguel.qbs.application.usecase.commands.BackupCommand
+import com.github.taixmiguel.qbs.domain.valueobjects.BackupDescription
 import com.github.taixmiguel.qbs.domain.valueobjects.BackupId
+import com.github.taixmiguel.qbs.domain.valueobjects.BackupName
 import com.github.taixmiguel.qbs.domain.valueobjects.DirectoryPath
 
 class UpdateBackup(
@@ -25,8 +27,8 @@ class UpdateBackup(
             ?: throw NoSuchElementException("Backup with id '$backupId' not found")
 
         val updatedBackup = backup.copy(
-            name = command.name,
-            description = command.description,
+            name = BackupName(command.name),
+            description = BackupDescription(command.description),
             storageService = command.storageService,
             sourceDir = DirectoryPath(command.sourceDir),
             destinationDir = DirectoryPath(command.destinationDir),
