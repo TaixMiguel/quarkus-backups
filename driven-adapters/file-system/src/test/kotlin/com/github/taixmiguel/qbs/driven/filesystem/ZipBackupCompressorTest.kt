@@ -1,5 +1,6 @@
 package com.github.taixmiguel.qbs.driven.filesystem
 
+import com.github.taixmiguel.qbs.domain.valueobjects.DirectoryPath
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
@@ -31,7 +32,7 @@ class ZipBackupCompressorTest {
         val compressor = ZipBackupCompressor()
         
         // This is expected to fail with the current implementation if it doesn't handle broken symlinks
-        val backupFile = compressor.compress(tempDir)
+        val backupFile = compressor.compress(DirectoryPath(tempDir.toString()))
         
         assertTrue(backupFile.exists())
         assertTrue(backupFile.length() > 0)
@@ -53,7 +54,7 @@ class ZipBackupCompressorTest {
 
         try {
             val compressor = ZipBackupCompressor()
-            val backupFile = compressor.compress(tempDir)
+            val backupFile = compressor.compress(DirectoryPath(tempDir.toString()))
             
             assertTrue(backupFile.exists())
             // Verification: The zip should exist and be empty, as the only file was not readable.

@@ -3,7 +3,8 @@ package com.github.taixmiguel.qbs.application.usecase
 import com.github.taixmiguel.qbs.application.port.persistence.BackupRepository
 import com.github.taixmiguel.qbs.application.port.storage.StorageServiceRegistry
 import com.github.taixmiguel.qbs.application.usecase.commands.BackupCommand
-import com.github.taixmiguel.qbs.domain.BackupId
+import com.github.taixmiguel.qbs.domain.valueobjects.BackupId
+import com.github.taixmiguel.qbs.domain.valueobjects.DirectoryPath
 
 class UpdateBackup(
     private val repository: BackupRepository,
@@ -23,8 +24,8 @@ class UpdateBackup(
             name = command.name,
             description = command.description,
             storageService = command.storageService,
-            sourceDir = command.sourceDir,
-            destinationDir = command.destinationDir,
+            sourceDir = DirectoryPath(command.sourceDir),
+            destinationDir = DirectoryPath(command.destinationDir),
             username = command.username,
             password = command.password,
             nBackupsMax = command.nBackupsMax,

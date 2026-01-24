@@ -1,12 +1,13 @@
 package com.github.taixmiguel.qbs.domain
 
+import com.github.taixmiguel.qbs.domain.valueobjects.BackupId
+import com.github.taixmiguel.qbs.domain.valueobjects.DirectoryPath
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Test
-import kotlin.io.path.Path
 
 class BackupTest {
     @Test
@@ -16,8 +17,8 @@ class BackupTest {
             name = "Backup name",
             description = "Backup description",
             storageService = "storage-service",
-            sourceDir = Path("src"),
-            destinationDir = Path("src")
+            sourceDir = DirectoryPath("src"),
+            destinationDir = DirectoryPath("src")
         )
 
         assertNotNull(backup)
@@ -36,8 +37,8 @@ class BackupTest {
                 name = "",
                 description = "",
                 storageService = "",
-                sourceDir = Path("src"),
-                destinationDir = Path("src")
+                sourceDir = DirectoryPath("src"),
+                destinationDir = DirectoryPath("src")
             )
         }
     }
@@ -50,8 +51,8 @@ class BackupTest {
                 name = "Backup name",
                 description = "",
                 storageService = "",
-                sourceDir = Path("src"),
-                destinationDir = Path("src")
+                sourceDir = DirectoryPath("src"),
+                destinationDir = DirectoryPath("src")
             )
         }
     }
@@ -64,8 +65,8 @@ class BackupTest {
                 name = "Backup name",
                 description = "Backup description",
                 storageService = "",
-                sourceDir = Path("src"),
-                destinationDir = Path("src")
+                sourceDir = DirectoryPath("src"),
+                destinationDir = DirectoryPath("src")
             )
         }
     }

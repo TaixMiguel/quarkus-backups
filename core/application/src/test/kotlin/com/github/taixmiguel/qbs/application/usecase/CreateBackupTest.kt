@@ -1,13 +1,15 @@
 package com.github.taixmiguel.qbs.application.usecase
 
 import com.github.taixmiguel.qbs.application.port.BackupIdGenerator
+import com.github.taixmiguel.qbs.application.port.filesystem.FileSystemValidator
 import com.github.taixmiguel.qbs.application.port.persistence.BackupRepository
 import com.github.taixmiguel.qbs.application.port.storage.StorageRepository
 import com.github.taixmiguel.qbs.application.port.storage.StorageServiceRegistry
 import com.github.taixmiguel.qbs.application.usecase.commands.BackupCommand
 import com.github.taixmiguel.qbs.domain.Backup
-import com.github.taixmiguel.qbs.domain.BackupId
+import com.github.taixmiguel.qbs.domain.valueobjects.BackupId
 import com.github.taixmiguel.qbs.domain.BackupInstance
+import com.github.taixmiguel.qbs.domain.valueobjects.DirectoryPath
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNotNull
@@ -15,7 +17,6 @@ import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
 import java.io.File
 import java.nio.file.Path
-import kotlin.io.path.Path
 
 class CreateBackupTest {
     private val generatedId = BackupId("backup-id")
@@ -23,14 +24,15 @@ class CreateBackupTest {
     private val repository = FakeBackupRepository()
     private val idGenerator = FakeBackupIdGenerator(generatedId)
     private val ssRegistry = FakeStorageServiceRegistry()
+    private val fsValidator = FakeFileSystemValidator()
 
     private val createBackup = CreateBackup(repository = repository, idGenerator = idGenerator,
-                                ssRegistry = ssRegistry)
+                                ssRegistry = ssRegistry, fileSystemValidator = fsValidator)
 
     @Test
     fun `should create and persist a backup`() {
         val command = BackupCommand(name = "backup", description = "backup description",
-            storageService = "local storage", sourceDir = Path("src"), destinationDir = Path("dst"))
+            storageService = "local storage", sourceDir = "src", destinationDir = "dst")
         createBackup.execute(command)
         val savedBackup = repository.savedBackup
 
@@ -40,8 +42,8 @@ class CreateBackupTest {
 
         assertEquals("backup description", savedBackup.description)
         assertEquals("local storage", savedBackup.storageService)
-        assertEquals("src", savedBackup.sourceDir.toString())
-        assertEquals("dst", savedBackup.destinationDir.toString())
+        assertEquals(DirectoryPath("src"), savedBackup.sourceDir)
+        assertEquals(DirectoryPath("dst"), savedBackup.destinationDir)
         assertNull(savedBackup.username)
         assertNull(savedBackup.password)
         assertEquals(15, savedBackup.nBackupsMax)
@@ -85,5 +87,9 @@ class CreateBackupTest {
                 override suspend fun pull(path: Path, filename: String): File? = null
                 override suspend fun remove(path: Path, filename: String) { /* no-op */ }
             } else null
+    }
+
+    private class FakeFileSystemValidator: FileSystemValidator {
+        override fun validateDirectory(directory: String) {}
     }
 }

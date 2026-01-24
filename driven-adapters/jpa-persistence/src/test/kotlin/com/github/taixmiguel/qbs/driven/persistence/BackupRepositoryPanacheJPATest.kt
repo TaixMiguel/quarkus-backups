@@ -1,14 +1,14 @@
 package com.github.taixmiguel.qbs.driven.persistence
 
 import com.github.taixmiguel.qbs.domain.Backup
-import com.github.taixmiguel.qbs.domain.BackupId
+import com.github.taixmiguel.qbs.domain.valueobjects.BackupId
+import com.github.taixmiguel.qbs.domain.valueobjects.DirectoryPath
 import io.quarkus.test.junit.QuarkusTest
 import jakarta.inject.Inject
 import jakarta.transaction.Transactional
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Test
-import java.nio.file.Path
 
 import java.nio.file.Files
 
@@ -28,12 +28,11 @@ class BackupRepositoryPanacheJPATest {
             name = "Test Backup",
             description = "A backup for testing",
             storageService = "local-fs",
-            sourceDir = tempSource,
-            destinationDir = Path.of("/tmp/dest")
+            sourceDir = DirectoryPath(tempSource.toString()),
+            destinationDir = DirectoryPath("/tmp/dest")
         )
 
         repository.save(backup)
-
         val foundBackup = repository.findById(backupId)
 
         assertNotNull(foundBackup)
