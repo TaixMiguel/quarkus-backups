@@ -56,16 +56,16 @@ class HomeAssistantDiscoveryService @Inject constructor(
             .filter { it.swSensorMQTT }
             .forEach {
                 // log: Creación del sensor de última ejecución para el backup {backup}
-                var stateTopic = formatTopic(topicPrefix="stat", topicSubfix="lastExecution")
+                var stateTopic = formatTopic(topicPrefix="stat", topicSubfix="lastExecution", backupId = it.id.value)
                 var entity = MQTTEntity.create(device, name = "Ejecución [${it.name.value}]",
-                    objectId = "taixBackupsService_${it.name.value}_lastExecution",
+                    objectId = "taixBackupsService_${it.id.value}_lastExecution",
                     retain = true, stateTopic = stateTopic)
                 publisher.publish(topic = entity.getConfigTopic(), payload = entity.formatJSON(), retain = true)
 
                 // log: Creación del sensor de estado para el backup {backup}
-                stateTopic = formatTopic(topicPrefix="stat", topicSubfix="stateBackup")
+                stateTopic = formatTopic(topicPrefix="stat", topicSubfix="stateBackup", backupId = it.id.value)
                 entity = MQTTEntity.create(device, name = "Estado [${it.name.value}]",
-                    objectId = "taixBackupsService_${it.name.value}_stateBackup",
+                    objectId = "taixBackupsService_${it.id.value}_stateBackup",
                     retain = true, stateTopic = stateTopic)
                 publisher.publish(topic = entity.getConfigTopic(), payload = entity.formatJSON(), retain = true)
             }

@@ -39,7 +39,6 @@ class MQTTEntity private constructor(
             unitOfMeasurement?.let { put("unit_of_measurement", unitOfMeasurement) }
             commandTopic?.let { put("command_topic", commandTopic) }
             stateTopic?.let { put("state_topic", stateTopic) }
-            unitOfMeasurement?.let { put("unit_of_measurement", unitOfMeasurement) }
             put("device", device.formatJSON())
             objectId?.let { put("object_id", objectId) }
             uniqueId?.let { put("unique_id", uniqueId) }
