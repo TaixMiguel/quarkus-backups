@@ -10,7 +10,7 @@ import jakarta.inject.Inject
 
 @ApplicationScoped
 class MqttMessagePublisher @Inject constructor(
-    @field:Channel("backup-status") private val emitter: Emitter<MqttMessage<String>>
+    @Channel("backup-status") private val emitter: Emitter<MqttMessage<String>>
 ): MessagePublisher {
     override fun publish(topic: String, payload: String, retain: Boolean) {
         val message: MqttMessage<String> = MqttMessage.of(topic, payload, MqttQoS.AT_MOST_ONCE, retain)

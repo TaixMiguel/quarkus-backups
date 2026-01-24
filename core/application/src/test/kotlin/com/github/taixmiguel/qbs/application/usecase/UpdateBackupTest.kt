@@ -26,7 +26,8 @@ class UpdateBackupTest {
 
     private val createBackup = CreateBackup(repository = repository, idGenerator = idGenerator,
                                 ssRegistry = ssRegistry, fileSystemValidator = fsValidator)
-    private val updateBackup = UpdateBackup(repository = repository, ssRegistry = ssRegistry)
+    private val updateBackup = UpdateBackup(repository = repository, ssRegistry = ssRegistry,
+                                fileSystemValidator = fsValidator)
 
     @Test
     fun `should update and persist a backup`() {
