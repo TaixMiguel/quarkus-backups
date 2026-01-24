@@ -9,6 +9,8 @@ import com.github.taixmiguel.qbs.application.usecase.commands.BackupCommand
 import com.github.taixmiguel.qbs.domain.Backup
 import com.github.taixmiguel.qbs.domain.valueobjects.BackupId
 import com.github.taixmiguel.qbs.domain.BackupInstance
+import com.github.taixmiguel.qbs.domain.valueobjects.BackupDescription
+import com.github.taixmiguel.qbs.domain.valueobjects.BackupName
 import com.github.taixmiguel.qbs.domain.valueobjects.DirectoryPath
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
@@ -38,9 +40,9 @@ class CreateBackupTest {
 
         assertNotNull(savedBackup)
         assertEquals(generatedId, savedBackup!!.id)
-        assertEquals("backup", savedBackup.name)
+        assertEquals(BackupName("backup"), savedBackup.name)
 
-        assertEquals("backup description", savedBackup.description)
+        assertEquals(BackupDescription("backup description"), savedBackup.description)
         assertEquals("local storage", savedBackup.storageService)
         assertEquals(DirectoryPath("src"), savedBackup.sourceDir)
         assertEquals(DirectoryPath("dst"), savedBackup.destinationDir)

@@ -4,6 +4,8 @@ import com.github.taixmiguel.qbs.application.port.persistence.BackupRepository
 import com.github.taixmiguel.qbs.domain.Backup
 import com.github.taixmiguel.qbs.domain.valueobjects.BackupId
 import com.github.taixmiguel.qbs.domain.BackupInstance
+import com.github.taixmiguel.qbs.domain.valueobjects.BackupDescription
+import com.github.taixmiguel.qbs.domain.valueobjects.BackupName
 import com.github.taixmiguel.qbs.domain.valueobjects.DirectoryPath
 import com.github.taixmiguel.qbs.driven.persistence.entity.BackupEntryJpa
 import com.github.taixmiguel.qbs.driven.persistence.entity.BackupInstanceEntryJpa
@@ -22,8 +24,8 @@ class BackupRepositoryPanacheJPA: BackupRepository {
     override fun save(backup: Backup) {
         val entity = BackupEntryJpa().apply {
             id = backup.id.value
-            name = backup.name
-            description = backup.description
+            name = backup.name.value
+            description = backup.description.value
             storageService = backup.storageService
             sourceDir = backup.sourceDir.value
             destinationDir = backup.destinationDir.value
@@ -65,8 +67,8 @@ class BackupRepositoryPanacheJPA: BackupRepository {
     private fun toDomain(entity: BackupEntryJpa): Backup {
         val backup = Backup(
             id = BackupId(entity.id),
-            name = entity.name,
-            description = entity.description,
+            name = BackupName(entity.name),
+            description = BackupDescription(entity.description),
             storageService = entity.storageService,
             sourceDir = DirectoryPath(entity.sourceDir),
             destinationDir = DirectoryPath(entity.destinationDir),

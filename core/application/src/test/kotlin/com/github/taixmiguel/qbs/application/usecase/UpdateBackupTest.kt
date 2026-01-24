@@ -9,6 +9,8 @@ import com.github.taixmiguel.qbs.application.usecase.commands.BackupCommand
 import com.github.taixmiguel.qbs.domain.Backup
 import com.github.taixmiguel.qbs.domain.valueobjects.BackupId
 import com.github.taixmiguel.qbs.domain.BackupInstance
+import com.github.taixmiguel.qbs.domain.valueobjects.BackupDescription
+import com.github.taixmiguel.qbs.domain.valueobjects.BackupName
 import com.github.taixmiguel.qbs.domain.valueobjects.DirectoryPath
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
@@ -43,8 +45,8 @@ class UpdateBackupTest {
 
         assertNotNull(updatedBackup)
         assertEquals(generatedId, updatedBackup!!.id)
-        assertEquals("backup-updated", updatedBackup.name)
-        assertEquals("backup description updated", updatedBackup.description)
+        assertEquals(BackupName("backup-updated"), updatedBackup.name)
+        assertEquals(BackupDescription("backup description updated"), updatedBackup.description)
         assertEquals("local storage", updatedBackup.storageService)
         assertEquals(DirectoryPath("src"), updatedBackup.sourceDir)
         assertEquals(DirectoryPath("dst"), updatedBackup.destinationDir)

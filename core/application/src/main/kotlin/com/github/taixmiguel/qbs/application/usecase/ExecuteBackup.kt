@@ -62,7 +62,7 @@ class ExecuteBackup(
         val createdAt = bckInstance.createdAt
 
         try {
-            msgPublisher.publish("stat/taixBackups/lastBackup", backup.name, true)
+            msgPublisher.publish("stat/taixBackups/lastBackup", backup.name.value, true)
             msgPublisher.publish("stat/taixBackups/lastExecution", "${createdAt.toEpochSecond(ZoneOffset.UTC)}", true)
 
             if (backup.swSensorMQTT) {

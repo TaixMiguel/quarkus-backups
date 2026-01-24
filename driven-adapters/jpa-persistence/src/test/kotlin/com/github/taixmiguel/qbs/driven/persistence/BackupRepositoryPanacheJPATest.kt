@@ -1,7 +1,9 @@
 package com.github.taixmiguel.qbs.driven.persistence
 
 import com.github.taixmiguel.qbs.domain.Backup
+import com.github.taixmiguel.qbs.domain.valueobjects.BackupDescription
 import com.github.taixmiguel.qbs.domain.valueobjects.BackupId
+import com.github.taixmiguel.qbs.domain.valueobjects.BackupName
 import com.github.taixmiguel.qbs.domain.valueobjects.DirectoryPath
 import io.quarkus.test.junit.QuarkusTest
 import jakarta.inject.Inject
@@ -25,8 +27,8 @@ class BackupRepositoryPanacheJPATest {
         val backupId = BackupId("test-id")
         val backup = Backup(
             id = backupId,
-            name = "Test Backup",
-            description = "A backup for testing",
+            name = BackupName("Test Backup"),
+            description = BackupDescription("A backup for testing"),
             storageService = "local-fs",
             sourceDir = DirectoryPath(tempSource.toString()),
             destinationDir = DirectoryPath("/tmp/dest")

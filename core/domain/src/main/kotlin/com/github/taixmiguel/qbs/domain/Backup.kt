@@ -1,12 +1,14 @@
 package com.github.taixmiguel.qbs.domain
 
+import com.github.taixmiguel.qbs.domain.valueobjects.BackupDescription
 import com.github.taixmiguel.qbs.domain.valueobjects.BackupId
+import com.github.taixmiguel.qbs.domain.valueobjects.BackupName
 import com.github.taixmiguel.qbs.domain.valueobjects.DirectoryPath
 
 data class Backup(
     val id: BackupId,
-    val name: String,
-    val description: String,
+    val name: BackupName,
+    val description: BackupDescription,
     val storageService: String,
     val sourceDir: DirectoryPath,
     val destinationDir: DirectoryPath,
@@ -17,8 +19,6 @@ data class Backup(
     val instances: MutableList<BackupInstance> = mutableListOf()
 ) {
     init {
-        require(name.isNotBlank()) { "El nombre no puede estar vacío" }
-        require(description.isNotBlank()) { "La descripción no puede estar vacía" }
         require(storageService.isNotBlank()) { "El servicio de almacenaje no puede estar vacío" }
 
         require(nBackupsMax > 0) { "El parámetro nBackupsMax debe ser superior a 0" }
