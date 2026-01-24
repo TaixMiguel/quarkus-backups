@@ -62,12 +62,12 @@ class ExecuteBackup(
         val createdAt = bckInstance.createdAt
 
         try {
-            msgPublisher.publish("stat/taixBackups/lastBackup", backup.name.value, true)
-            msgPublisher.publish("stat/taixBackups/lastExecution", "${createdAt.toEpochSecond(ZoneOffset.UTC)}", true)
+            msgPublisher.publish("stat/taixBackupsService/lastBackup", backup.name.value, true)
+            msgPublisher.publish("stat/taixBackupsService/lastExecution", "${createdAt.toEpochSecond(ZoneOffset.UTC)}", true)
 
             if (backup.swSensorMQTT) {
-                msgPublisher.publish("stat/taixBackups/${backup.id.value}/stateBackup", bckInstance.state.name, true)
-                msgPublisher.publish("stat/taixBackups/${backup.id.value}/lastExecution", "${createdAt.toEpochSecond(ZoneOffset.UTC)}", true)
+                msgPublisher.publish("stat/taixBackupsService/${backup.id.value}/stateBackup", bckInstance.state.name, true)
+                msgPublisher.publish("stat/taixBackupsService/${backup.id.value}/lastExecution", "${createdAt.toEpochSecond(ZoneOffset.UTC)}", true)
             }
         } catch (e: Exception) {
             e.printStackTrace()
