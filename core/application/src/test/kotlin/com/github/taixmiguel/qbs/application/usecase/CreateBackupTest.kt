@@ -67,8 +67,12 @@ class CreateBackupTest {
             TODO("Not yet implemented")
         }
 
-        override fun save(backup: BackupInstance) {
+        override fun save(bckInstance: BackupInstance) {
             // no-op for test
+        }
+
+        override fun delete(bckInstance: BackupInstance) {
+            TODO("Not yet implemented")
         }
     }
 

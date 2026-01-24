@@ -44,7 +44,11 @@ class ListBackupsTest {
         }
 
         override fun findAll(): List<Backup> = backups
-        override fun save(backup: BackupInstance) {
+        override fun save(bckInstance: BackupInstance) {
+            TODO("Not yet implemented")
+        }
+
+        override fun delete(bckInstance: BackupInstance) {
             TODO("Not yet implemented")
         }
     }

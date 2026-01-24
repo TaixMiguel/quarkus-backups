@@ -48,20 +48,25 @@ class BackupRepositoryPanacheJPA: BackupRepository {
     }
 
     @Transactional
-    override fun save(backup: BackupInstance) {
-        val backupEntity = panacheBckRepository.findById(backup.backup.id.value)
-            ?: throw IllegalStateException("Backup not found for id: ${backup.backup.id.value}")
+    override fun save(bckInstance: BackupInstance) {
+        val backupEntity = panacheBckRepository.findById(bckInstance.backup.id.value)
+            ?: throw IllegalStateException("Backup not found for id: ${bckInstance.backup.id.value}")
 
         val entity = BackupInstanceEntryJpa()
-        entity.id = backup.id
+        entity.id = bckInstance.id
         entity.backup = backupEntity
-        entity.name = backup.name
-        entity.size = backup.size
-        entity.state = backup.state
-        entity.createdAt = backup.createdAt
-        entity.duration = backup.duration
+        entity.name = bckInstance.name
+        entity.size = bckInstance.size
+        entity.state = bckInstance.state
+        entity.createdAt = bckInstance.createdAt
+        entity.duration = bckInstance.duration
 
         panacheBckInstanceRepository.persist(entity)
+    }
+
+    @Transactional
+    override fun delete(bckInstance: BackupInstance) {
+        panacheBckInstanceRepository.deleteById(bckInstance.id)
     }
 
     private fun toDomain(entity: BackupEntryJpa): Backup {

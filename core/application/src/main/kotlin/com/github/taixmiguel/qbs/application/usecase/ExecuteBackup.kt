@@ -5,6 +5,7 @@ import com.github.taixmiguel.qbs.application.port.persistence.BackupRepository
 import com.github.taixmiguel.qbs.application.port.publisher.MessagePublisher
 import com.github.taixmiguel.qbs.application.port.storage.StorageRepository
 import com.github.taixmiguel.qbs.application.port.storage.StorageServiceRegistry
+import com.github.taixmiguel.qbs.domain.Backup
 import com.github.taixmiguel.qbs.domain.valueobjects.BackupId
 import com.github.taixmiguel.qbs.domain.BackupInstance
 import com.github.taixmiguel.qbs.domain.BackupState
@@ -26,6 +27,7 @@ class ExecuteBackup(
 
             val bckInstance = BackupInstance.create(backup = backup)
             var bckFile: File? = null
+            backup.add(bckInstance)
 
             try {
                 bckFile = compress(bckInstance)
@@ -36,6 +38,7 @@ class ExecuteBackup(
             } finally {
                 publishBackupStatus(bckInstance, msgPublisher)
                 backupRepository.save(bckInstance)
+                removeOlderInstances(backup)
                 bckFile?.delete()
             }
         } ?: throw NoSuchElementException("Backup with id $backupId does not exist")
@@ -68,6 +71,18 @@ class ExecuteBackup(
             if (backup.swSensorMQTT) {
                 msgPublisher.publish("stat/taixBackupsService/${backup.id.value}/stateBackup", bckInstance.state.name, true)
                 msgPublisher.publish("stat/taixBackupsService/${backup.id.value}/lastExecution", "${createdAt.toEpochSecond(ZoneOffset.UTC)}", true)
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    private fun removeOlderInstances(backup: Backup) {
+        try {
+            while (backup.instances.size > backup.nBackupsMax) {
+                val bckInstance = backup.instances.first()
+                backupRepository.delete(bckInstance)
+                backup.remove(bckInstance)
             }
         } catch (e: Exception) {
             e.printStackTrace()
