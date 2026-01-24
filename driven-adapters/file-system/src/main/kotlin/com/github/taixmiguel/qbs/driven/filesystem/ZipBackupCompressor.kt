@@ -14,12 +14,15 @@ import java.util.zip.ZipOutputStream
 class ZipBackupCompressor: BackupCompressor {
     override fun compress(sourceDir: DirectoryPath): File {
         val backupFile = Files.createTempFile("backup_", ".bck").toFile()
-        val sourceDirFile = File(sourceDir.value)
+        val sourceDirFile = sourceDir.toFile()
 
         backupFile.parentFile?.takeIf { !it.exists() }?.mkdirs()
         ZipOutputStream(FileOutputStream(backupFile)).use { zipOut ->
             val outputCanonical = backupFile.canonicalPath
             sourceDirFile.walkTopDown().forEach { file ->
+                val path = file.toPath()
+                // skip broken symlinks and unreadable files
+                if ((Files.isSymbolicLink(path) && !Files.exists(path)) || !file.canRead()) return@forEach
                 if (file.canonicalPath == outputCanonical) return@forEach
                 val zipEntryName = file.relativeTo(sourceDirFile).invariantSeparatorsPath
 

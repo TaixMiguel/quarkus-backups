@@ -10,6 +10,7 @@ import kotlin.io.path.isReadable
 @ApplicationScoped
 class FileSystemValidatorInstance: FileSystemValidator {
     override fun validateDirectory(directory: String) {
+        if (directory.contains("..")) throw IllegalArgumentException("Path cannot contain parent directory references '..'")
         val path = Paths.get(directory)
 
         if (!path.exists()) throw IllegalArgumentException("Path $directory does not exist")

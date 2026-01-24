@@ -9,7 +9,6 @@ import com.github.taixmiguel.qbs.domain.valueobjects.BackupId
 import com.github.taixmiguel.qbs.domain.BackupInstance
 import com.github.taixmiguel.qbs.domain.BackupState
 import java.io.File
-import java.nio.file.Paths
 import java.time.Duration
 import java.time.Instant
 import java.time.ZoneOffset
@@ -54,7 +53,7 @@ class ExecuteBackup(
     }
 
     private suspend fun upload(bckInstance: BackupInstance, bckFile: File, storageRepo: StorageRepository) {
-        storageRepo.push(Paths.get(bckInstance.backup.destinationDir.value), bckFile)
+        storageRepo.push(bckInstance.backup.destinationDir.toPath(), bckFile)
         bckInstance.state = BackupState.UPLOAD
     }
 

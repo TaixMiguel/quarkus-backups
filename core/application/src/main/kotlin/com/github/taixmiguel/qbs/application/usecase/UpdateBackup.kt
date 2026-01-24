@@ -1,5 +1,6 @@
 package com.github.taixmiguel.qbs.application.usecase
 
+import com.github.taixmiguel.qbs.application.port.filesystem.FileSystemValidator
 import com.github.taixmiguel.qbs.application.port.persistence.BackupRepository
 import com.github.taixmiguel.qbs.application.port.storage.StorageServiceRegistry
 import com.github.taixmiguel.qbs.application.usecase.commands.BackupCommand
@@ -8,9 +9,12 @@ import com.github.taixmiguel.qbs.domain.valueobjects.DirectoryPath
 
 class UpdateBackup(
     private val repository: BackupRepository,
-    private val ssRegistry: StorageServiceRegistry
+    private val ssRegistry: StorageServiceRegistry,
+    private val fileSystemValidator: FileSystemValidator
 ) {
     fun execute(backupId: BackupId, command: BackupCommand) {
+        fileSystemValidator.validateDirectory(command.sourceDir)
+
         if (!ssRegistry.isSupported(command.storageService))
             throw IllegalArgumentException("Storage service '${command.storageService}' not supported. Supported " +
                     "services are ${ssRegistry.supportedServices().joinToString(", ")}")
