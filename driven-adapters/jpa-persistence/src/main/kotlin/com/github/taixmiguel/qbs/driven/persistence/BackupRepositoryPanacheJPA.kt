@@ -2,14 +2,14 @@ package com.github.taixmiguel.qbs.driven.persistence
 
 import com.github.taixmiguel.qbs.application.port.persistence.BackupRepository
 import com.github.taixmiguel.qbs.domain.Backup
-import com.github.taixmiguel.qbs.domain.BackupId
+import com.github.taixmiguel.qbs.domain.valueobjects.BackupId
 import com.github.taixmiguel.qbs.domain.BackupInstance
+import com.github.taixmiguel.qbs.domain.valueobjects.DirectoryPath
 import com.github.taixmiguel.qbs.driven.persistence.entity.BackupEntryJpa
 import com.github.taixmiguel.qbs.driven.persistence.entity.BackupInstanceEntryJpa
 import io.quarkus.hibernate.orm.panache.kotlin.PanacheRepositoryBase
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.transaction.Transactional
-import java.nio.file.Path
 import kotlin.String
 
 @ApplicationScoped
@@ -25,8 +25,8 @@ class BackupRepositoryPanacheJPA: BackupRepository {
             name = backup.name
             description = backup.description
             storageService = backup.storageService
-            sourceDir = backup.sourceDir.toString()
-            destinationDir = backup.destinationDir.toString()
+            sourceDir = backup.sourceDir.value
+            destinationDir = backup.destinationDir.value
             username = backup.username
             password = backup.password
             nBackupsMax = backup.nBackupsMax
@@ -46,19 +46,19 @@ class BackupRepositoryPanacheJPA: BackupRepository {
     }
 
     @Transactional
-    override fun save(bck: BackupInstance) {
-        val backupEntity = panacheBckRepository.findById(bck.backup.id.value)
-            ?: throw IllegalStateException("Backup not found for id: ${bck.backup.id.value}")
+    override fun save(backup: BackupInstance) {
+        val backupEntity = panacheBckRepository.findById(backup.backup.id.value)
+            ?: throw IllegalStateException("Backup not found for id: ${backup.backup.id.value}")
 
-        val entity = BackupInstanceEntryJpa().apply {
-            id = bck.id
-            backup = backupEntity
-            name = bck.name
-            size = bck.size
-            state = bck.state
-            createdAt = bck.createdAt
-            duration = bck.duration
-        }
+        val entity = BackupInstanceEntryJpa()
+        entity.id = backup.id
+        entity.backup = backupEntity
+        entity.name = backup.name
+        entity.size = backup.size
+        entity.state = backup.state
+        entity.createdAt = backup.createdAt
+        entity.duration = backup.duration
+
         panacheBckInstanceRepository.persist(entity)
     }
 
@@ -68,8 +68,8 @@ class BackupRepositoryPanacheJPA: BackupRepository {
             name = entity.name,
             description = entity.description,
             storageService = entity.storageService,
-            sourceDir = Path.of(entity.sourceDir),
-            destinationDir = Path.of(entity.destinationDir),
+            sourceDir = DirectoryPath(entity.sourceDir),
+            destinationDir = DirectoryPath(entity.destinationDir),
             username = entity.username,
             password = entity.password,
             nBackupsMax = entity.nBackupsMax,

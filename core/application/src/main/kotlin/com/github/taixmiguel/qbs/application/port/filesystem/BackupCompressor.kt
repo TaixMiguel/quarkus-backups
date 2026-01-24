@@ -1,8 +1,8 @@
 package com.github.taixmiguel.qbs.application.port.filesystem
 
+import com.github.taixmiguel.qbs.domain.valueobjects.DirectoryPath
 import java.io.File
-import java.nio.file.Path
 
 interface BackupCompressor {
-    fun compress(sourceDir: Path): File
+    fun compress(sourceDir: DirectoryPath): File
 }

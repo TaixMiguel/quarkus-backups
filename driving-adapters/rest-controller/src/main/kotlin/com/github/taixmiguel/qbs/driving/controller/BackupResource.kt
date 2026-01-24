@@ -5,7 +5,7 @@ import com.github.taixmiguel.qbs.application.usecase.ExecuteBackup
 import com.github.taixmiguel.qbs.application.usecase.ListBackups
 import com.github.taixmiguel.qbs.application.usecase.SearchBackup
 import com.github.taixmiguel.qbs.application.usecase.commands.BackupCommand
-import com.github.taixmiguel.qbs.domain.BackupId
+import com.github.taixmiguel.qbs.domain.valueobjects.BackupId
 import com.github.taixmiguel.qbs.driving.controller.dto.BackupResponse
 import com.github.taixmiguel.qbs.driving.controller.dto.CreateBackupRequest
 import io.smallrye.common.annotation.Blocking
@@ -36,7 +36,7 @@ class BackupResource @Inject constructor(
     fun create(request: CreateBackupRequest): Response {
         val command = BackupCommand(
             name = request.name, description = request.description, storageService = request.storageService,
-            sourceDir = path(request.sourceDir), destinationDir = path(request.destinationDir),
+            sourceDir = request.sourceDir, destinationDir = request.destinationDir,
             username = request.username, password = request.password, nBackupsMax = request.nBackupsMax,
             swSensorMQTT = request.swSensorMQTT)
 
@@ -77,9 +77,5 @@ class BackupResource @Inject constructor(
             }
             Response.status(Response.Status.ACCEPTED).build()
         } ?: Response.status(Response.Status.NOT_FOUND).build()
-    }
-
-    private fun path(path: String): java.nio.file.Path {
-        return java.nio.file.Path.of(path)
     }
 }

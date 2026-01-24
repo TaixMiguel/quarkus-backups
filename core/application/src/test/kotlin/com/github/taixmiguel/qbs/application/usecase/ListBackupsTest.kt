@@ -2,12 +2,12 @@ package com.github.taixmiguel.qbs.application.usecase
 
 import com.github.taixmiguel.qbs.application.port.persistence.BackupRepository
 import com.github.taixmiguel.qbs.domain.Backup
-import com.github.taixmiguel.qbs.domain.BackupId
+import com.github.taixmiguel.qbs.domain.valueobjects.BackupId
 import com.github.taixmiguel.qbs.domain.BackupInstance
+import com.github.taixmiguel.qbs.domain.valueobjects.DirectoryPath
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Test
-import kotlin.io.path.Path
 
 class ListBackupsTest {
     private val repository = FakeBackupRepository()
@@ -25,10 +25,10 @@ class ListBackupsTest {
         init {
             backups.add(Backup(
                 id = BackupId("backup-1"), name = "backup one", description = "backup description", storageService = "local storage",
-                sourceDir = Path("src"), destinationDir = Path("dst")))
+                sourceDir = DirectoryPath("src"), destinationDir = DirectoryPath("dst")))
             backups.add(Backup(
                 id = BackupId("backup-2"), name = "backup two", description = "backup description", storageService = "local storage",
-                sourceDir = Path("src"), destinationDir = Path("dst")))
+                sourceDir = DirectoryPath("src"), destinationDir = DirectoryPath("dst")))
         }
 
         override fun save(backup: Backup) {

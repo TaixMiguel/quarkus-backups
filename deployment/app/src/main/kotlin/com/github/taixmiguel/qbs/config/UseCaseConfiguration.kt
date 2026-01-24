@@ -2,6 +2,7 @@ package com.github.taixmiguel.qbs.config
 
 import com.github.taixmiguel.qbs.application.port.filesystem.BackupCompressor
 import com.github.taixmiguel.qbs.application.port.BackupIdGenerator
+import com.github.taixmiguel.qbs.application.port.filesystem.FileSystemValidator
 import com.github.taixmiguel.qbs.application.port.persistence.BackupRepository
 import com.github.taixmiguel.qbs.application.port.publisher.MessagePublisher
 import com.github.taixmiguel.qbs.application.port.storage.StorageServiceRegistry
@@ -19,9 +20,10 @@ class UseCaseConfiguration {
     fun createBackup(
         idGenerator: BackupIdGenerator,
         repository: BackupRepository,
-        ssRegistry: StorageServiceRegistry
+        ssRegistry: StorageServiceRegistry,
+        fsValidator: FileSystemValidator
     ): CreateBackup {
-        return CreateBackup(idGenerator, repository, ssRegistry)
+        return CreateBackup(idGenerator, repository, ssRegistry, fsValidator)
     }
 
     @Produces

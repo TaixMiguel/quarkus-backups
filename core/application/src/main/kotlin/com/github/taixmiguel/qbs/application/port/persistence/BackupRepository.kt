@@ -1,7 +1,7 @@
 package com.github.taixmiguel.qbs.application.port.persistence
 
 import com.github.taixmiguel.qbs.domain.Backup
-import com.github.taixmiguel.qbs.domain.BackupId
+import com.github.taixmiguel.qbs.domain.valueobjects.BackupId
 import com.github.taixmiguel.qbs.domain.BackupInstance
 
 interface BackupRepository {

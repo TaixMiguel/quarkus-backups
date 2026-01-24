@@ -1,19 +1,20 @@
 package com.github.taixmiguel.qbs.application.usecase
 
 import com.github.taixmiguel.qbs.application.port.BackupIdGenerator
+import com.github.taixmiguel.qbs.application.port.filesystem.FileSystemValidator
 import com.github.taixmiguel.qbs.application.port.persistence.BackupRepository
 import com.github.taixmiguel.qbs.application.port.storage.StorageRepository
 import com.github.taixmiguel.qbs.application.port.storage.StorageServiceRegistry
 import com.github.taixmiguel.qbs.application.usecase.commands.BackupCommand
 import com.github.taixmiguel.qbs.domain.Backup
-import com.github.taixmiguel.qbs.domain.BackupId
+import com.github.taixmiguel.qbs.domain.valueobjects.BackupId
 import com.github.taixmiguel.qbs.domain.BackupInstance
+import com.github.taixmiguel.qbs.domain.valueobjects.DirectoryPath
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
-import kotlin.io.path.Path
 
 class UpdateBackupTest {
     private val generatedId = BackupId("backup-id")
@@ -21,20 +22,22 @@ class UpdateBackupTest {
     private val repository = FakeBackupRepository()
     private val idGenerator = FakeBackupIdGenerator(generatedId)
     private val ssRegistry = FakeStorageServiceRegistry()
+    private val fsValidator = FakeFileSystemValidator()
 
     private val createBackup = CreateBackup(repository = repository, idGenerator = idGenerator,
-                                ssRegistry = ssRegistry)
-    private val updateBackup = UpdateBackup(repository = repository, ssRegistry = ssRegistry)
+                                ssRegistry = ssRegistry, fileSystemValidator = fsValidator)
+    private val updateBackup = UpdateBackup(repository = repository, ssRegistry = ssRegistry,
+                                fileSystemValidator = fsValidator)
 
     @Test
     fun `should update and persist a backup`() {
         val cCommand = BackupCommand(name = "backup", description = "backup description",
-            storageService = "local storage", sourceDir = Path("src"), destinationDir = Path("dst"))
+            storageService = "local storage", sourceDir = "src", destinationDir = "dst")
         createBackup.execute(cCommand)
         val savedBackup = repository.savedBackup
 
         val uCommand = BackupCommand(name = "backup-updated", description = "backup description updated",
-            storageService = "local storage", sourceDir = Path("src"), destinationDir = Path("dst"))
+            storageService = "local storage", sourceDir = "src", destinationDir = "dst")
         updateBackup.execute(savedBackup!!.id, uCommand)
         val updatedBackup = repository.savedBackup
 
@@ -43,8 +46,8 @@ class UpdateBackupTest {
         assertEquals("backup-updated", updatedBackup.name)
         assertEquals("backup description updated", updatedBackup.description)
         assertEquals("local storage", updatedBackup.storageService)
-        assertEquals("src", updatedBackup.sourceDir.toString())
-        assertEquals("dst", updatedBackup.destinationDir.toString())
+        assertEquals(DirectoryPath("src"), updatedBackup.sourceDir)
+        assertEquals(DirectoryPath("dst"), updatedBackup.destinationDir)
         assertNull(updatedBackup.username)
         assertNull(updatedBackup.password)
         assertEquals(15, updatedBackup.nBackupsMax)
@@ -85,5 +88,9 @@ class UpdateBackupTest {
         override fun getRepository(storageService: String): StorageRepository? {
             TODO("Not yet implemented")
         }
+    }
+
+    private class FakeFileSystemValidator: FileSystemValidator {
+        override fun validateDirectory(directory: String) {}
     }
 }
