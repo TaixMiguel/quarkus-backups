@@ -9,5 +9,6 @@ interface BackupRepository {
     fun findById(id: BackupId): Backup?
     fun findAll(): List<Backup>
 
-    fun save(backup: BackupInstance)
+    fun save(bckInstance: BackupInstance)
+    fun delete(bckInstance: BackupInstance)
 }

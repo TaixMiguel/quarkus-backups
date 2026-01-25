@@ -32,6 +32,10 @@ data class Backup(
         _instances.add(instance)
     }
 
+    fun remove(instance: BackupInstance) {
+        _instances.remove(instance)
+    }
+
     override fun toString(): String {
         return "Backup(id=$id, name='${name.value}', description='${description.value}', " +
                 "storageService='$storageService', sourceDir=$sourceDir, destinationDir=$destinationDir, " +

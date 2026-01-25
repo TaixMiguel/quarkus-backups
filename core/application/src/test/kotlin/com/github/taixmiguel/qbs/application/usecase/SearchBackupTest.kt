@@ -47,7 +47,11 @@ class SearchBackupTest {
             TODO("Not yet implemented")
         }
 
-        override fun save(backup: BackupInstance) {
+        override fun save(bckInstance: BackupInstance) {
+            TODO("Not yet implemented")
+        }
+
+        override fun delete(bckInstance: BackupInstance) {
             TODO("Not yet implemented")
         }
     }
