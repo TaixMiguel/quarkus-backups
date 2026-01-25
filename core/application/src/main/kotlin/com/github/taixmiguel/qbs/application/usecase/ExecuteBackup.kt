@@ -80,9 +80,10 @@ class ExecuteBackup(
     private fun removeOlderInstances(backup: Backup) {
         try {
             while (backup.instances.size > backup.nBackupsMax) {
-                val bckInstance = backup.instances.first()
-                backupRepository.delete(bckInstance)
-                backup.remove(bckInstance)
+                backup.instances.minByOrNull { it.createdAt }?.let { oldestInstance ->
+                    backupRepository.delete(oldestInstance)
+                    backup.remove(oldestInstance)
+                } ?: break
             }
         } catch (e: Exception) {
             e.printStackTrace()
