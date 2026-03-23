@@ -158,7 +158,12 @@ class MegaStorageRepository: StorageRepository {
     }
 
     private suspend fun findNode(path: Path, swCreate: Boolean = false): Node? {
-        val rootNode: Node = mega.getFileSystem().root ?: Node()
+        val fs = mega.getFileSystem()
+        val rootNode: Node = fs.root ?: run {
+            Log.errorf("SEARCH: FileSystem root is null after login!")
+            return null
+        }
+        Log.debugf("SEARCH: FileSystem root = '%s', root.hash = '%s'", rootNode.name, rootNode.hash)
         return findNode(rootNode, path, swCreate)
     }
 
@@ -176,8 +181,15 @@ class MegaStorageRepository: StorageRepository {
             .findFirst()
             .getOrElse {
                 if (swCreate) {
-                    Log.infof("SEARCH: Node not found, creating [folder='%s']", folder)
-                    mega.createDir(folder, rootNode)
+                    Log.infof("SEARCH: Node not found, creating [folder='%s', rootNode.name='%s', rootNode.hash='%s']", folder, rootNode.name, rootNode.hash)
+                    try {
+                        val created = mega.createDir(folder, rootNode)
+                        Log.infof("SEARCH: Node created successfully [folder='%s', newNode.hash='%s']", folder, created.hash)
+                        created
+                    } catch (e: Exception) {
+                        Log.errorf(e, "SEARCH: createDir failed [folder='%s', rootNode.name='%s']", folder, rootNode.name)
+                        null
+                    }
                 } else {
                     Log.warnf("SEARCH: Node not found and creation disabled [folder='%s']", folder)
                     null
