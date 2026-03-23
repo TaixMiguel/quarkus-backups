@@ -6,6 +6,7 @@ import dev.carlsen.mega.Mega
 import dev.carlsen.mega.model.Node
 import dev.carlsen.mega.util.CancellationToken
 import dev.carlsen.mega.util.ProgressCountingSink
+import io.quarkus.logging.Log
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import kotlinx.coroutines.Dispatchers
@@ -27,38 +28,64 @@ class MegaStorageRepository: StorageRepository {
     private lateinit var mega: Mega
 
     override suspend fun push(pathToUpload: Path, file: File) {
+        Log.infof("UPLOAD: Starting [file='%s', path='%s', size=%d bytes]", file.name, pathToUpload, file.length())
         try {
             login()
 
             val node = findNode(pathToUpload, true)
+            if (node == null) {
+                Log.errorf("UPLOAD: Failed — could not find or create destination node [path='%s']", pathToUpload)
+                return
+            }
+            Log.debugf("UPLOAD: Destination node found [node='%s']", node.name)
+
             val fileToUpload = kotlinx.io.files.Path(file.absolutePath)
+            Log.debugf("UPLOAD: Uploading file to MEGA...")
 
             SystemFileSystem.source(fileToUpload).use { fileSource ->
                 mega.uploadFile(
-                    destNode = node!!,
+                    destNode = node,
                     name = file.name,
                     fileSize = file.length(),
                     fileInputSource = fileSource.buffered(),
                     cancellationToken = CancellationToken.default()
                 )
             }
+            Log.infof("UPLOAD: Completed successfully [file='%s']", file.name)
         } catch (e: Exception) {
-            e.printStackTrace()
+            Log.errorf(e, "UPLOAD: Failed with exception [file='%s', path='%s']", file.name, pathToUpload)
         } finally {
             logout()
         }
     }
 
     override suspend fun pull(path: Path, filename: String): File? {
+        Log.infof("DOWNLOAD: Starting [file='%s', path='%s']", filename, path)
         try {
             login()
 
-            val node = findNode(path, false) ?: return null
-            val file = mega.getChildren(node).firstOrNull { it.name == filename } ?: return null
+            val node = findNode(path, false)
+            if (node == null) {
+                Log.warnf("DOWNLOAD: Directory node not found [path='%s']", path)
+                return null
+            }
+            Log.debugf("DOWNLOAD: Directory node found [node='%s']", node.name)
+
+            val children = mega.getChildren(node)
+            Log.debugf("DOWNLOAD: Found %d children in node", children.size)
+
+            val file = children.firstOrNull { it.name == filename }
+            if (file == null) {
+                Log.warnf("DOWNLOAD: File not found in remote node [file='%s', node='%s']", filename, node.name)
+                return null
+            }
+            Log.debugf("DOWNLOAD: File located [file='%s', size=%d bytes]", file.name, file.size)
 
             val tempFile = withContext(Dispatchers.IO) {
                 File.createTempFile("qbs-mega-", "-download")
             }.apply { deleteOnExit() }
+            Log.debugf("DOWNLOAD: Temp file created [path='%s']", tempFile.absolutePath)
+
             val fileToDownload = kotlinx.io.files.Path(tempFile.absolutePath)
 
             withContext(Dispatchers.IO) {
@@ -69,16 +96,18 @@ class MegaStorageRepository: StorageRepository {
                             delegate = fileOutputSink,
                             totalBytes = file.size,
                             onProgress = { b, t ->
-                                println("Downloaded $b of $t bytes")
+                                Log.debugf("DOWNLOAD: Progress [%d / %d bytes]", b, t)
                             }
                         ).buffered(),
                         cancellationToken = CancellationToken.default()
                     )
                 }
             }
+
+            Log.infof("DOWNLOAD: Completed successfully [file='%s', tempPath='%s']", filename, tempFile.absolutePath)
             return tempFile
         } catch (e: Exception) {
-            e.printStackTrace()
+            Log.errorf(e, "DOWNLOAD: Failed with exception [file='%s', path='%s']", filename, path)
             return null
         } finally {
             logout()
@@ -86,27 +115,43 @@ class MegaStorageRepository: StorageRepository {
     }
 
     override suspend fun remove(path: Path, filename: String) {
+        Log.infof("CLEANUP: Starting deletion [file='%s', path='%s']", filename, path)
         try {
             login()
 
-            val node = findNode(path, false) ?: return
-            val file = mega.getChildren(node).firstOrNull { it.name == filename } ?: return
+            val node = findNode(path, false)
+            if (node == null) {
+                Log.warnf("CLEANUP: Directory node not found, skipping [path='%s']", path)
+                return
+            }
+
+            val file = mega.getChildren(node).firstOrNull { it.name == filename }
+            if (file == null) {
+                Log.warnf("CLEANUP: File not found in remote node, skipping [file='%s', node='%s']", filename, node.name)
+                return
+            }
+
+            Log.debugf("CLEANUP: Deleting file [file='%s']", file.name)
             mega.delete(file, destroy = true)
+            Log.infof("CLEANUP: Deleted successfully [file='%s']", filename)
         } catch (e: Exception) {
-            e.printStackTrace()
+            Log.errorf(e, "CLEANUP: Failed with exception [file='%s', path='%s']", filename, path)
         } finally {
             logout()
         }
     }
 
     private suspend fun login() {
-        val password = config.getValue<String>(Properties.MEGA_PASSWORD, String::class.java)
         val email = config.getValue<String>(Properties.MEGA_EMAIL, String::class.java)
-        mega.login(email, password)
+        Log.debugf("AUTH: Logging in to MEGA [email='%s']", email)
+        mega.login(email, config.getValue<String>(Properties.MEGA_PASSWORD, String::class.java))
+        Log.debugf("AUTH: Login successful")
     }
 
     private suspend fun logout() {
+        Log.debugf("AUTH: Logging out from MEGA")
         mega.logout()
+        Log.debugf("AUTH: Logout successful")
     }
 
     private suspend fun findNode(path: Path, swCreate: Boolean = false): Node? {
@@ -121,18 +166,31 @@ class MegaStorageRepository: StorageRepository {
             route.substring(1, if (index < 0) route.length else index)
         } else route.substring(0, route.indexOf("/"))
 
+        Log.debugf("SEARCH: Looking for node [folder='%s', route='%s', swCreate=%b]", folder, route, swCreate)
+
         val node = rootNode.getChildren().stream()
             .filter { it.name == folder }
             .findFirst()
             .getOrElse {
-                if (swCreate) mega.createDir(folder, rootNode)
-                else null
+                if (swCreate) {
+                    Log.infof("SEARCH: Node not found, creating [folder='%s']", folder)
+                    mega.createDir(folder, rootNode)
+                } else {
+                    Log.warnf("SEARCH: Node not found and creation disabled [folder='%s']", folder)
+                    null
+                }
             }
 
         if (node != null) {
             val nextPath = Path.of(route.substring(route.indexOf(folder) + folder.length))
-            return if (nextPath.name.isNotEmpty()) findNode(node, nextPath, swCreate) else node
+            return if (nextPath.name.isNotEmpty()) {
+                Log.debugf("SEARCH: Descending into next path segment [next='%s']", nextPath.name)
+                findNode(node, nextPath, swCreate)
+            } else {
+                Log.debugf("SEARCH: Node resolved successfully [node='%s']", node.name)
+                node
+            }
         }
-        return node
+        return null
     }
 }
