@@ -37,7 +37,10 @@ class MegaStorageRepository: StorageRepository {
                 Log.errorf("UPLOAD: Failed — could not find or create destination node [path='%s']", pathToUpload)
                 return
             }
-            Log.debugf("UPLOAD: Destination node found [node='%s']", node.name)
+            Log.debugf(
+                "UPLOAD: Destination node found [destNode.name='%s', destNode.hash='%s', fileName='%s', fileSize=%d, fileExists=%b, fileCanRead=%b, filePath='%s']",
+                node.name, node.hash, file.name, file.length(), file.exists(), file.canRead(), file.absolutePath
+            )
 
             val fileToUpload = kotlinx.io.files.Path(file.absolutePath)
             Log.debugf("UPLOAD: Uploading file to MEGA...")
