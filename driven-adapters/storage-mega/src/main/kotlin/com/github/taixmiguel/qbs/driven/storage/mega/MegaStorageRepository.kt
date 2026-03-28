@@ -168,13 +168,14 @@ class MegaStorageRepository: StorageRepository {
     }
 
     private suspend fun findNode(rootNode: Node, path: Path, swCreate: Boolean = false): Node? {
-        val route = path.toString()
-        val folder = if (route.startsWith("/")) {
-            val index = route.indexOf("/", 1)
-            route.substring(1, if (index < 0) route.length else index)
-        } else route.substring(0, route.indexOf("/"))
+        val normPath = if (path.isAbsolute) path.root?.relativize(path) ?: path else path
+        if (normPath.nameCount == 0) {
+            Log.debugf("SEARCH: Empty path — returning rootNode [node='%s']", rootNode.name)
+            return rootNode
+        }
 
-        Log.debugf("SEARCH: Looking for node [folder='%s', route='%s', swCreate=%b]", folder, route, swCreate)
+        val folder = normPath.getName(0).toString()
+        Log.debugf("SEARCH: Looking for node [folder='%s', path='%s', swCreate=%b]", folder, path, swCreate)
 
         val node = rootNode.getChildren().stream()
             .filter { it.name == folder }
@@ -197,9 +198,9 @@ class MegaStorageRepository: StorageRepository {
             }
 
         if (node != null) {
-            val nextPath = Path.of(route.substring(route.indexOf(folder) + folder.length))
-            return if (nextPath.name.isNotEmpty()) {
-                Log.debugf("SEARCH: Descending into next path segment [next='%s']", nextPath.name)
+            return if (normPath.nameCount > 1) {
+                val nextPath = normPath.subpath(1, normPath.nameCount)
+                Log.debugf("SEARCH: Descending into next path segment [next='%s']", nextPath)
                 findNode(node, nextPath, swCreate)
             } else {
                 Log.debugf("SEARCH: Node resolved successfully [node='%s']", node.name)
