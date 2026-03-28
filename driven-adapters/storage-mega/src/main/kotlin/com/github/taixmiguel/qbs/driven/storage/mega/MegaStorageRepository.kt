@@ -16,7 +16,6 @@ import kotlinx.io.files.SystemFileSystem
 import org.eclipse.microprofile.config.Config
 import java.io.File
 import java.nio.file.Path
-import kotlin.io.path.name
 import kotlin.jvm.optionals.getOrElse
 
 @ApplicationScoped
@@ -35,8 +34,8 @@ class MegaStorageRepository: StorageRepository {
             val node = findNode(pathToUpload, true)
                 ?: throw IllegalStateException("Could not find or create destination node [path='$pathToUpload']")
             Log.debugf(
-                "UPLOAD: Destination node found [destNode.name='%s', destNode.hash='%s', fileName='%s', fileSize=%d, fileExists=%b, fileCanRead=%b, filePath='%s']",
-                node.name, node.hash, file.name, file.length(), file.exists(), file.canRead(), file.absolutePath
+                "UPLOAD: Destination node found [destNode.name='%s', destNode.hash='%s', fileName='%s', fileSize=%d, fileExists=%b, fileCanRead=%b]",
+                node.name, node.hash.take(8), file.name, file.length(), file.exists(), file.canRead()
             )
 
             val fileToUpload = kotlinx.io.files.Path(file.absolutePath)
@@ -97,7 +96,7 @@ class MegaStorageRepository: StorageRepository {
                             delegate = fileOutputSink,
                             totalBytes = file.size,
                             onProgress = { b, t ->
-                                Log.infof("DOWNLOAD: Progress [%d / %d bytes]", b, t)
+                                Log.debugf("DOWNLOAD: Progress [%d / %d bytes]", b, t)
                             }
                         ).buffered(),
                         cancellationToken = CancellationToken.default()
@@ -105,7 +104,7 @@ class MegaStorageRepository: StorageRepository {
                 }
             }
 
-            Log.infof("DOWNLOAD: Completed successfully [file='%s', tempPath='%s']", filename, tempFile.absolutePath)
+            Log.infof("DOWNLOAD: Completed successfully [file='%s']", filename)
             return tempFile
         } catch (e: Exception) {
             Log.errorf(e, "DOWNLOAD: Failed with exception [file='%s', path='%s']", filename, path)
@@ -180,10 +179,10 @@ class MegaStorageRepository: StorageRepository {
             .findFirst()
             .getOrElse {
                 if (swCreate) {
-                    Log.infof("SEARCH: Node not found, creating [folder='%s', rootNode.name='%s', rootNode.hash='%s']", folder, rootNode.name, rootNode.hash)
+                    Log.infof("SEARCH: Node not found, creating [folder='%s', rootNode.name='%s', rootNode.hash='%s']", folder, rootNode.name, rootNode.hash.take(8))
                     try {
                         val created = mega.createDir(folder, rootNode)
-                        Log.infof("SEARCH: Node created successfully [folder='%s', newNode.hash='%s']", folder, created.hash)
+                        Log.infof("SEARCH: Node created successfully [folder='%s', newNode.hash='%s']", folder, created.hash.take(8))
                         created
                     } catch (e: Exception) {
                         Log.errorf(e, "SEARCH: createDir failed [folder='%s', rootNode.name='%s']", folder, rootNode.name)
