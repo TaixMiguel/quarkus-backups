@@ -33,10 +33,7 @@ class MegaStorageRepository: StorageRepository {
             login()
 
             val node = findNode(pathToUpload, true)
-            if (node == null) {
-                Log.errorf("UPLOAD: Failed — could not find or create destination node [path='%s']", pathToUpload)
-                return
-            }
+                ?: throw IllegalStateException("Could not find or create destination node [path='$pathToUpload']")
             Log.debugf(
                 "UPLOAD: Destination node found [destNode.name='%s', destNode.hash='%s', fileName='%s', fileSize=%d, fileExists=%b, fileCanRead=%b, filePath='%s']",
                 node.name, node.hash, file.name, file.length(), file.exists(), file.canRead(), file.absolutePath
@@ -57,6 +54,7 @@ class MegaStorageRepository: StorageRepository {
             Log.infof("UPLOAD: Completed successfully [file='%s']", file.name)
         } catch (e: Exception) {
             Log.errorf(e, "UPLOAD: Failed with exception [file='%s', path='%s']", file.name, pathToUpload)
+            throw e
         } finally {
             logout()
         }
