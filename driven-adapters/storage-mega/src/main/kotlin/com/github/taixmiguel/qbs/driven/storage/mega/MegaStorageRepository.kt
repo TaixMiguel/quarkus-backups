@@ -37,13 +37,13 @@ class MegaStorageRepository: StorageRepository {
                 Log.errorf("UPLOAD: Failed — could not find or create destination node [path='%s']", pathToUpload)
                 return
             }
-            Log.infof(
+            Log.debugf(
                 "UPLOAD: Destination node found [destNode.name='%s', destNode.hash='%s', fileName='%s', fileSize=%d, fileExists=%b, fileCanRead=%b, filePath='%s']",
                 node.name, node.hash, file.name, file.length(), file.exists(), file.canRead(), file.absolutePath
             )
 
             val fileToUpload = kotlinx.io.files.Path(file.absolutePath)
-            Log.infof("UPLOAD: Uploading file to MEGA...")
+            Log.debugf("UPLOAD: Uploading file to MEGA...")
 
             SystemFileSystem.source(fileToUpload).use { fileSource ->
                 mega.uploadFile(
@@ -72,22 +72,22 @@ class MegaStorageRepository: StorageRepository {
                 Log.warnf("DOWNLOAD: Directory node not found [path='%s']", path)
                 return null
             }
-            Log.infof("DOWNLOAD: Directory node found [node='%s']", node.name)
+            Log.debugf("DOWNLOAD: Directory node found [node='%s']", node.name)
 
             val children = mega.getChildren(node)
-            Log.infof("DOWNLOAD: Found %d children in node", children.size)
+            Log.debugf("DOWNLOAD: Found %d children in node", children.size)
 
             val file = children.firstOrNull { it.name == filename }
             if (file == null) {
                 Log.warnf("DOWNLOAD: File not found in remote node [file='%s', node='%s']", filename, node.name)
                 return null
             }
-            Log.infof("DOWNLOAD: File located [file='%s', size=%d bytes]", file.name, file.size)
+            Log.debugf("DOWNLOAD: File located [file='%s', size=%d bytes]", file.name, file.size)
 
             val tempFile = withContext(Dispatchers.IO) {
                 File.createTempFile("qbs-mega-", "-download")
             }.apply { deleteOnExit() }
-            Log.infof("DOWNLOAD: Temp file created [path='%s']", tempFile.absolutePath)
+            Log.debugf("DOWNLOAD: Temp file created [path='%s']", tempFile.absolutePath)
 
             val fileToDownload = kotlinx.io.files.Path(tempFile.absolutePath)
 
@@ -134,7 +134,7 @@ class MegaStorageRepository: StorageRepository {
                 return
             }
 
-            Log.infof("CLEANUP: Deleting file [file='%s']", file.name)
+            Log.debugf("CLEANUP: Deleting file [file='%s']", file.name)
             mega.delete(file, destroy = true)
             Log.infof("CLEANUP: Deleted successfully [file='%s']", filename)
         } catch (e: Exception) {
@@ -146,15 +146,15 @@ class MegaStorageRepository: StorageRepository {
 
     private suspend fun login() {
         val email = config.getValue<String>(Properties.MEGA_EMAIL, String::class.java)
-        Log.infof("AUTH: Logging in to MEGA [email='%s']", email)
+        Log.debugf("AUTH: Logging in to MEGA [email='%s']", email)
         mega.login(email, config.getValue<String>(Properties.MEGA_PASSWORD, String::class.java))
-        Log.infof("AUTH: Login successful")
+        Log.debugf("AUTH: Login successful")
     }
 
     private suspend fun logout() {
-        Log.infof("AUTH: Logging out from MEGA")
+        Log.debugf("AUTH: Logging out from MEGA")
         mega.logout()
-        Log.infof("AUTH: Logout successful")
+        Log.debugf("AUTH: Logout successful")
     }
 
     private suspend fun findNode(path: Path, swCreate: Boolean = false): Node? {
@@ -163,7 +163,7 @@ class MegaStorageRepository: StorageRepository {
             Log.errorf("SEARCH: FileSystem root is null after login!")
             return null
         }
-        Log.infof("SEARCH: FileSystem root = '%s', root.hash = '%s'", rootNode.name, rootNode.hash)
+        Log.debugf("SEARCH: FileSystem root = '%s', root.hash = '%s'", rootNode.name, rootNode.hash)
         return findNode(rootNode, path, swCreate)
     }
 
@@ -174,7 +174,7 @@ class MegaStorageRepository: StorageRepository {
             route.substring(1, if (index < 0) route.length else index)
         } else route.substring(0, route.indexOf("/"))
 
-        Log.infof("SEARCH: Looking for node [folder='%s', route='%s', swCreate=%b]", folder, route, swCreate)
+        Log.debugf("SEARCH: Looking for node [folder='%s', route='%s', swCreate=%b]", folder, route, swCreate)
 
         val node = rootNode.getChildren().stream()
             .filter { it.name == folder }
@@ -199,10 +199,10 @@ class MegaStorageRepository: StorageRepository {
         if (node != null) {
             val nextPath = Path.of(route.substring(route.indexOf(folder) + folder.length))
             return if (nextPath.name.isNotEmpty()) {
-                Log.infof("SEARCH: Descending into next path segment [next='%s']", nextPath.name)
+                Log.debugf("SEARCH: Descending into next path segment [next='%s']", nextPath.name)
                 findNode(node, nextPath, swCreate)
             } else {
-                Log.infof("SEARCH: Node resolved successfully [node='%s']", node.name)
+                Log.debugf("SEARCH: Node resolved successfully [node='%s']", node.name)
                 node
             }
         }
