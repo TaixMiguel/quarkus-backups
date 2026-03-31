@@ -2,6 +2,7 @@ package com.github.taixmiguel.qbs.driven.mqtt.discovery
 
 import com.github.taixmiguel.qbs.application.port.persistence.BackupRepository
 import com.github.taixmiguel.qbs.application.port.publisher.MessagePublisher
+import io.quarkus.logging.Log
 import io.quarkus.runtime.StartupEvent
 import io.quarkus.scheduler.Scheduled
 import jakarta.enterprise.context.ApplicationScoped
@@ -23,26 +24,33 @@ class HomeAssistantDiscoveryService @Inject constructor(
     private lateinit var appVersion: String
 
     fun onStart(@Observes ev: StartupEvent) {
+        Log.info("Starting Home Assistant discovery service")
         onSchedule()
     }
 
     @Scheduled(every = "12h")
     fun onSchedule() {
-        val device = createDevice()
-        createBackupsEntities(device)
+        Log.info("Running Home Assistant discovery schedule")
+        try {
+            val device = createDevice()
+            createBackupsEntities(device)
+            Log.info("Home Assistant discovery completed successfully")
+        } catch (e: Exception) {
+            Log.errorf(e, "Discovery schedule failed: %s", e.message)
+        }
     }
 
     private fun createDevice(): MQTTDevice {
-        // log: Creación del dispositivo MQTT
+        Log.debug("Creating MQTT device")
         val device = MQTTDevice.create(identifier = "taixBackupService", name = appName, version = appVersion)
 
-        // log: Creación del sensor global última ejecución
+        Log.debug("Creating global sensor: last execution")
         var stateTopic = formatTopic(topicPrefix="stat", topicSubfix="lastExecution")
         var entity = MQTTEntity.create(device, name = "Última ejecución", objectId = "taixBackupsService_global_lastExecution",
             retain = true, stateTopic = stateTopic)
         publisher.publish(topic = entity.getConfigTopic(), payload = entity.formatJSON(), retain = true)
 
-        // log: Creación del sensor global último backup
+        Log.debug("Creating global sensor: last backup")
         stateTopic = formatTopic(topicPrefix="stat", topicSubfix="lastBackup")
         entity = MQTTEntity.create(device, name = "Último backup", objectId = "taixBackupsService_global_lastBackup",
             retain = true, stateTopic = stateTopic)
@@ -55,21 +63,20 @@ class HomeAssistantDiscoveryService @Inject constructor(
             .stream()
             .filter { it.swSensorMQTT }
             .forEach {
-                // log: Creación del sensor de última ejecución para el backup {backup}
+                Log.debugf("Creating last execution sensor for backup: %s", it.id.value)
                 var stateTopic = formatTopic(topicPrefix="stat", topicSubfix="lastExecution", backupId = it.id.value)
                 var entity = MQTTEntity.create(device, name = "Ejecución [${it.name.value}]",
                     objectId = "taixBackupsService_${it.id.value}_lastExecution",
                     retain = true, stateTopic = stateTopic)
                 publisher.publish(topic = entity.getConfigTopic(), payload = entity.formatJSON(), retain = true)
 
-                // log: Creación del sensor de estado para el backup {backup}
+                Log.debugf("Creating state sensor for backup: %s", it.id.value)
                 stateTopic = formatTopic(topicPrefix="stat", topicSubfix="stateBackup", backupId = it.id.value)
                 entity = MQTTEntity.create(device, name = "Estado [${it.name.value}]",
                     objectId = "taixBackupsService_${it.id.value}_stateBackup",
                     retain = true, stateTopic = stateTopic)
                 publisher.publish(topic = entity.getConfigTopic(), payload = entity.formatJSON(), retain = true)
             }
-
     }
 
     private fun formatTopic(topicPrefix: String, topicSubfix: String, backupId: String = "global"): String {
