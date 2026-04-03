@@ -1,5 +1,6 @@
 package com.github.taixmiguel.qbs.driven.mqtt
 
+import io.quarkus.logging.Log
 import io.quarkus.runtime.StartupEvent
 import io.vertx.mutiny.core.Vertx
 import io.vertx.mutiny.mqtt.MqttClient
@@ -36,6 +37,7 @@ class MqttClientProducer @Inject constructor(
     private lateinit var client: MqttClient
 
     fun onStart(@Observes ev: StartupEvent) {
+        Log.infof("MQTT connecting to host='%s' port='%d' clientId='%s' username='%s'", host, port, clientId, username)
         val options = MqttClientOptions().apply {
             this.clientId = clientId
             this.username = username
