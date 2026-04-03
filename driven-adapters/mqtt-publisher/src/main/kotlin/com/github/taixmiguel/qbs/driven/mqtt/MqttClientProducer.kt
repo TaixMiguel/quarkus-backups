@@ -29,10 +29,15 @@ class MqttClientProducer @Inject constructor(
     @field:ConfigProperty(name = "mqtt.password")
     private lateinit var password: String
 
+    @Inject
+    @field:ConfigProperty(name = "mqtt.clientId")
+    private lateinit var clientId: String
+
     private lateinit var client: MqttClient
 
     fun onStart(@Observes ev: StartupEvent) {
         val options = MqttClientOptions().apply {
+            this.clientId = clientId
             this.username = username
             this.password = password
         }
