@@ -24,24 +24,24 @@ class MqttClientProducer @Inject constructor(
 
     @Inject
     @field:ConfigProperty(name = "mqtt.username")
-    private lateinit var username: String
+    private lateinit var mqttUsername: String
 
     @Inject
     @field:ConfigProperty(name = "mqtt.password")
-    private lateinit var password: String
+    private lateinit var mqttPassword: String
 
     @Inject
     @field:ConfigProperty(name = "mqtt.clientId")
-    private lateinit var clientId: String
+    private lateinit var mqttClientId: String
 
     private lateinit var client: MqttClient
 
     fun onStart(@Observes ev: StartupEvent) {
-        Log.infof("MQTT connecting to host='%s' port='%d' clientId='%s' username='%s'", host, port, clientId, username)
+        Log.infof("MQTT connecting to host='%s' port='%d' clientId='%s' username='%s'", host, port, mqttClientId, mqttUsername)
         val options = MqttClientOptions().apply {
-            this.clientId = clientId
-            this.username = username
-            this.password = password
+            this.clientId = mqttClientId
+            this.username = mqttUsername
+            this.password = mqttPassword
         }
         client = MqttClient.create(vertx, options)
         client.connectAndAwait(port, host)
