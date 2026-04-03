@@ -3,10 +3,8 @@ package com.github.taixmiguel.qbs.driven.mqtt.discovery
 import com.github.taixmiguel.qbs.application.port.persistence.BackupRepository
 import com.github.taixmiguel.qbs.application.port.publisher.MessagePublisher
 import io.quarkus.logging.Log
-import io.quarkus.runtime.StartupEvent
 import io.quarkus.scheduler.Scheduled
 import jakarta.enterprise.context.ApplicationScoped
-import jakarta.enterprise.event.Observes
 import jakarta.inject.Inject
 import org.eclipse.microprofile.config.inject.ConfigProperty
 
@@ -23,12 +21,7 @@ class HomeAssistantDiscoveryService @Inject constructor(
     @field:ConfigProperty(name = "app.version")
     private lateinit var appVersion: String
 
-    fun onStart(@Observes ev: StartupEvent) {
-        Log.info("Starting Home Assistant discovery service")
-        onSchedule()
-    }
-
-    @Scheduled(every = "12h")
+    @Scheduled(every = "12h", delayed = "10s")
     fun onSchedule() {
         Log.info("Running Home Assistant discovery schedule")
         try {
