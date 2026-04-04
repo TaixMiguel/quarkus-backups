@@ -34,7 +34,7 @@ class HomeAssistantDiscoveryService @Inject constructor(
     }
 
     private fun createDevice(): MQTTDevice {
-        Log.debug("Creating MQTT device")
+        Log.debugf("Creating MQTT [device='%s' version='%s']", appName, appVersion)
         val device = MQTTDevice.create(identifier = "taixBackupService", name = appName, version = appVersion)
 
         Log.debug("Creating global sensor: last execution")
