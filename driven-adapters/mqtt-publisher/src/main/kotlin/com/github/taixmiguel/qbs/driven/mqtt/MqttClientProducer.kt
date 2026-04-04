@@ -37,12 +37,12 @@ class MqttClientProducer @Inject constructor(
     private lateinit var client: MqttClient
 
     fun onStart(@Observes ev: StartupEvent) {
-        Log.infof("MQTT connecting to host='%s' port='%d' clientId='%s' username='%s'", host, port, mqttClientId, mqttUsername)
-        val options = MqttClientOptions().apply {
-            this.clientId = mqttClientId
-            this.username = mqttUsername
-            this.password = mqttPassword
-        }
+        Log.infof("MQTT connecting to host='%s' port='%d' clientId='%s' username='%s'",
+            host, port, mqttClientId, mqttUsername)
+        val options = MqttClientOptions()
+            .setClientId(mqttClientId)
+            .setUsername(mqttUsername)
+            .setPassword(mqttPassword)
         client = MqttClient.create(vertx, options)
         client.connectAndAwait(port, host)
     }
