@@ -40,13 +40,13 @@ class HomeAssistantDiscoveryService @Inject constructor(
         Log.debug("Creating global sensor: last execution")
         var stateTopic = formatTopic(topicPrefix="stat", topicSubfix="lastExecution")
         var entity = MQTTEntity.create(device, name = "Última ejecución", objectId = "taixBackupsService_global_lastExecution",
-            retain = true, stateTopic = stateTopic)
+            uniqueId = "taixBackupsService_global_lastExecution", retain = true, stateTopic = stateTopic)
         publisher.publish(topic = entity.getConfigTopic(), payload = entity.formatJSON(), retain = true)
 
         Log.debug("Creating global sensor: last backup")
         stateTopic = formatTopic(topicPrefix="stat", topicSubfix="lastBackup")
         entity = MQTTEntity.create(device, name = "Último backup", objectId = "taixBackupsService_global_lastBackup",
-            retain = true, stateTopic = stateTopic)
+            uniqueId = "taixBackupsService_global_lastBackup", retain = true, stateTopic = stateTopic)
         publisher.publish(topic = entity.getConfigTopic(), payload = entity.formatJSON(), retain = true)
         return device
     }
@@ -60,6 +60,7 @@ class HomeAssistantDiscoveryService @Inject constructor(
                 var stateTopic = formatTopic(topicPrefix="stat", topicSubfix="lastExecution", backupId = it.id.value)
                 var entity = MQTTEntity.create(device, name = "Ejecución [${it.name.value}]",
                     objectId = "taixBackupsService_${it.id.value}_lastExecution",
+                    uniqueId = "taixBackupsService_${it.id.value}_lastExecution",
                     retain = true, stateTopic = stateTopic)
                 publisher.publish(topic = entity.getConfigTopic(), payload = entity.formatJSON(), retain = true)
 
@@ -67,6 +68,7 @@ class HomeAssistantDiscoveryService @Inject constructor(
                 stateTopic = formatTopic(topicPrefix="stat", topicSubfix="stateBackup", backupId = it.id.value)
                 entity = MQTTEntity.create(device, name = "Estado [${it.name.value}]",
                     objectId = "taixBackupsService_${it.id.value}_stateBackup",
+                    uniqueId = "taixBackupsService_${it.id.value}_stateBackup",
                     retain = true, stateTopic = stateTopic)
                 publisher.publish(topic = entity.getConfigTopic(), payload = entity.formatJSON(), retain = true)
             }
