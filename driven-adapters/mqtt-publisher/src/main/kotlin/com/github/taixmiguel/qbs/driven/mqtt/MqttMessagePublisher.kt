@@ -13,6 +13,11 @@ class MqttMessagePublisher @Inject constructor(
 ): MessagePublisher {
 
     override fun publish(topic: String, payload: String, retain: Boolean) {
+        if (!mqttClient.isConnected) {
+            Log.warnf("MQTT not connected, skipping publish to %s", topic)
+            return
+        }
+
         Log.infof("Publishing message to topic: %s", topic)
         mqttClient.publishAndAwait(
             topic,

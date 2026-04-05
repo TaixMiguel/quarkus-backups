@@ -37,14 +37,19 @@ class MqttClientProducer @Inject constructor(
     private lateinit var client: MqttClient
 
     fun onStart(@Observes ev: StartupEvent) {
-        Log.infof("MQTT connecting to host='%s' port='%d' clientId='%s' username='%s'",
+        Log.debugf("MQTT connecting to host='%s' port='%d' clientId='%s' username='%s'",
             host, port, mqttClientId, mqttUsername)
         val options = MqttClientOptions()
             .setClientId(mqttClientId)
             .setUsername(mqttUsername)
             .setPassword(mqttPassword)
         client = MqttClient.create(vertx, options)
-        client.connectAndAwait(port, host)
+        try {
+            client.connectAndAwait(port, host)
+            Log.infof("MQTT connected to %s:%d", host, port)
+        } catch (e: Exception) {
+            Log.errorf(e, "MQTT connection failed, service will start degraded: %s", e.message)
+        }
     }
 
     @jakarta.enterprise.inject.Produces
