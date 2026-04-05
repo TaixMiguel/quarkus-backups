@@ -86,7 +86,17 @@
         <resources>
             <resource>
                 <directory>src/main/resources</directory>
+                <filtering>false</filtering>
+                <excludes>
+                    <exclude>application-build.properties</exclude>
+                </excludes>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
                 <filtering>true</filtering>
+                <includes>
+                    <include>application-build.properties</include>
+                </includes>
             </resource>
         </resources>
         <sourceDirectory>src/main/kotlin</sourceDirectory>
