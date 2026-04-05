@@ -1,8 +1,9 @@
 package com.github.taixmiguel.qbs.application.usecase
 
+import com.github.taixmiguel.qbs.application.port.event.BackupEventPublisher
+import com.github.taixmiguel.qbs.application.port.event.BackupExecutedEvent
 import com.github.taixmiguel.qbs.application.port.filesystem.BackupCompressor
 import com.github.taixmiguel.qbs.application.port.persistence.BackupRepository
-import com.github.taixmiguel.qbs.application.port.publisher.MessagePublisher
 import com.github.taixmiguel.qbs.application.port.storage.StorageRepository
 import com.github.taixmiguel.qbs.application.port.storage.StorageServiceRegistry
 import com.github.taixmiguel.qbs.domain.Backup
@@ -12,13 +13,12 @@ import com.github.taixmiguel.qbs.domain.BackupState
 import java.io.File
 import java.time.Duration
 import java.time.Instant
-import java.time.ZoneOffset
 
 class ExecuteBackup(
     private val backupRepository: BackupRepository,
     private val ssRegistry: StorageServiceRegistry,
     private val compressor: BackupCompressor,
-    private val msgPublisher: MessagePublisher
+    private val eventPublisher: BackupEventPublisher
 ) {
     suspend fun execute(backupId: BackupId) {
         backupRepository.findById(backupId)?.let { backup ->
@@ -36,7 +36,15 @@ class ExecuteBackup(
                 bckInstance.state = BackupState.ERROR
                 e.printStackTrace()
             } finally {
-                publishBackupStatus(bckInstance, msgPublisher)
+                eventPublisher.publishBackupExecuted(
+                    BackupExecutedEvent(
+                        backupId = backupId,
+                        backupName = backup.name,
+                        state = bckInstance.state,
+                        executedAt = bckInstance.createdAt,
+                        swSensorMQTT = backup.swSensorMQTT
+                    )
+                )
                 backupRepository.save(bckInstance)
                 removeOlderInstances(backup)
                 bckFile?.delete()
@@ -58,23 +66,6 @@ class ExecuteBackup(
     private suspend fun upload(bckInstance: BackupInstance, bckFile: File, storageRepo: StorageRepository) {
         storageRepo.push(bckInstance.backup.destinationDir.toPath(), bckFile)
         bckInstance.state = BackupState.UPLOAD
-    }
-
-    private fun publishBackupStatus(bckInstance: BackupInstance, msgPublisher: MessagePublisher) {
-        val backup = bckInstance.backup
-        val createdAt = bckInstance.createdAt
-
-        try {
-            msgPublisher.publish("stat/taixBackupsService/lastBackup", backup.name.value, true)
-            msgPublisher.publish("stat/taixBackupsService/lastExecution", "${createdAt.toEpochSecond(ZoneOffset.UTC)}", true)
-
-            if (backup.swSensorMQTT) {
-                msgPublisher.publish("stat/taixBackupsService/${backup.id.value}/stateBackup", bckInstance.state.name, true)
-                msgPublisher.publish("stat/taixBackupsService/${backup.id.value}/lastExecution", "${createdAt.toEpochSecond(ZoneOffset.UTC)}", true)
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
     }
 
     private fun removeOlderInstances(backup: Backup) {
