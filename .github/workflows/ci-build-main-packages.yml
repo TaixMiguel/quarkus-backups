@@ -4,6 +4,11 @@ on:
   schedule:
     - cron: '0 2 * * *'
   workflow_dispatch:
+    inputs:
+      tag_name:
+        description: 'Docker image tag'
+        default: 'latest'
+        required: true
 
 permissions:
   packages: write
@@ -64,5 +69,5 @@ jobs:
           context: .
           push: true
           file: deployment/app/src/main/docker/Dockerfile
-          tags: ${{ env.REGISTRY }}/taixmiguel/quarkus-backups:latest
+          tags: ${{ env.REGISTRY }}/taixmiguel/quarkus-backups:${{ github.event.inputs.tag_name || 'latest' }}
           platforms: linux/amd64,linux/arm64
