@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
     inputs:
       tag_name:
-        description: 'Docker image tag'
+        description: 'Docker image tag (e.g., latest, 1.0.0, v1.2.3)'
         default: 'latest'
         required: true
 
@@ -22,24 +22,38 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       should_build: ${{ steps.check.outputs.should_build }}
+      validated_tag: ${{ steps.version.outputs.tag }}
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
+      - name: Validate and normalize tag
+        id: version
+        run: |
+          INPUT_TAG="${{ github.event.inputs.tag_name || 'latest' }}"
+          
+          # ^(develop|latest|stable|v?\d+\.\d+\.\d+)$
+          if [[ "$INPUT_TAG" =~ ^(develop|latest|stable|v?[0-9]+\.[0-9]+\.[0-9]+)$ ]]; then
+            echo "Tag '$INPUT_TAG' is valid."
+            echo "tag=$INPUT_TAG" >> $GITHUB_OUTPUT
+          else
+            echo "::error::Invalid tag format '$INPUT_TAG'. Must be 'develop', 'latest', 'stable' or SemVer (e.g. v1.0.0)"
+            exit 1
+          fi
+
       - name: Check for commits in last 24 hours
         id: check
         run: |
-          SINCE=$(date -d '24 hours ago' +%s)
-          RECENT_COMMITS=$(git log --since="24 hours ago" --oneline)
-          
-          if [ -n "$RECENT_COMMITS" ]; then
-            echo "Found commits in the last 24 hours:"
-            echo "$RECENT_COMMITS"
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
             echo "should_build=true" >> $GITHUB_OUTPUT
           else
-            echo "No commits found in the last 24 hours"
-            echo "should_build=false" >> $GITHUB_OUTPUT
+            RECENT_COMMITS=$(git log --since="24 hours ago" --oneline)
+            if [ -n "$RECENT_COMMITS" ]; then
+              echo "should_build=true" >> $GITHUB_OUTPUT
+            else
+              echo "should_build=false" >> $GITHUB_OUTPUT
+            fi
           fi
 
   build_and_upload:
@@ -69,5 +83,5 @@ jobs:
           context: .
           push: true
           file: deployment/app/src/main/docker/Dockerfile
-          tags: ${{ env.REGISTRY }}/taixmiguel/quarkus-backups:${{ github.event.inputs.tag_name || 'latest' }}
+          tags: ${{ env.REGISTRY }}/taixmiguel/quarkus-backups:${{ needs.check_commits.outputs.validated_tag }}
           platforms: linux/amd64,linux/arm64
