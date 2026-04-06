@@ -1,6 +1,9 @@
 package com.github.taixmiguel.qbs.application.usecase
 
 import com.github.taixmiguel.qbs.application.port.BackupIdGenerator
+import com.github.taixmiguel.qbs.application.port.event.BackupCreatedEvent
+import com.github.taixmiguel.qbs.application.port.event.BackupEventPublisher
+import com.github.taixmiguel.qbs.application.port.event.BackupExecutedEvent
 import com.github.taixmiguel.qbs.application.port.filesystem.FileSystemValidator
 import com.github.taixmiguel.qbs.application.port.persistence.BackupRepository
 import com.github.taixmiguel.qbs.application.port.storage.StorageRepository
@@ -27,9 +30,11 @@ class CreateBackupTest {
     private val idGenerator = FakeBackupIdGenerator(generatedId)
     private val ssRegistry = FakeStorageServiceRegistry()
     private val fsValidator = FakeFileSystemValidator()
+    private val bckEventPublisher = FakeBackupEventPublisher()
 
     private val createBackup = CreateBackup(repository = repository, idGenerator = idGenerator,
-                                ssRegistry = ssRegistry, fileSystemValidator = fsValidator)
+                                ssRegistry = ssRegistry, fileSystemValidator = fsValidator,
+                                eventPublisher = bckEventPublisher)
 
     @Test
     fun `should create and persist a backup`() {
@@ -97,5 +102,15 @@ class CreateBackupTest {
 
     private class FakeFileSystemValidator: FileSystemValidator {
         override fun validateDirectory(directory: String) {}
+    }
+
+    private class FakeBackupEventPublisher: BackupEventPublisher {
+        override fun publishBackupCreated(event: BackupCreatedEvent) {
+            // no-op for test
+        }
+
+        override fun publishBackupExecuted(event: BackupExecutedEvent) {
+            TODO("Not yet implemented")
+        }
     }
 }
