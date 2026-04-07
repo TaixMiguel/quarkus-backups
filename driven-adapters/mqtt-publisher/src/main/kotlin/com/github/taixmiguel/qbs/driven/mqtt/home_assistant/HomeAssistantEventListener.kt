@@ -15,20 +15,23 @@ class HomeAssistantEventListener @Inject constructor(
     private val discoveryService: HomeAssistantDiscoveryService
 ) {
     fun onBackupCreated(@Observes event: BackupCreatedEvent) {
-        if (event.swSensorMQTT) discoveryService.registerBackup(backupId = event.backupId, backupName = event.backupName)
+        try {
+            if (event.swSensorMQTT) discoveryService.registerBackup(backupId = event.backupId, backupName = event.backupName)
+        } catch (e: Exception) {
+            Log.error("Failed to register backup in HA discovery: ${e.message}", e)
+        }
     }
 
     fun onBackupExecuted(@Observes event: BackupExecutedEvent) {
-        val name = event.backupName.value
         val createdAt = event.executedAt.toEpochSecond(ZoneOffset.UTC)
 
         try {
-            msgPublisher.publish("stat/taixBackupsService/lastBackup", name, true)
+            msgPublisher.publish("stat/taixBackupsService/lastBackup", event.backupName.value, true)
             msgPublisher.publish("stat/taixBackupsService/lastExecution", "$createdAt", true)
 
             if (event.swSensorMQTT) {
                 val id = event.backupId.value
-                msgPublisher.publish("stat/taixBackupsService/$id/stateBackup", name, true)
+                msgPublisher.publish("stat/taixBackupsService/$id/stateBackup", event.state.name, true)
                 msgPublisher.publish("stat/taixBackupsService/$id/lastExecution", "$createdAt", true)
             }
         } catch (e: Exception) {

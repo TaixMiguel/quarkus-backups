@@ -63,6 +63,7 @@ class HomeAssistantDiscoveryService @Inject constructor(
     }
 
     fun registerBackup(backupId: BackupId, backupName: BackupName) {
+        if (!::device.isInitialized) device = createDevice()
         Log.debugf("Creating last execution sensor for backup: %s", backupId.value)
         var stateTopic = formatTopic(topicPrefix="stat", topicSubfix="lastExecution", backupId = backupId.value)
         var entity = MQTTEntity.create(device, name = "Ejecución [${backupName.value}]",
