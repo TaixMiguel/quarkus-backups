@@ -1,4 +1,4 @@
-package com.github.taixmiguel.qbs.driven.mqtt.discovery
+package com.github.taixmiguel.qbs.driven.mqtt.home_assistant
 
 import kotlinx.serialization.json.add
 import kotlinx.serialization.json.buildJsonObject

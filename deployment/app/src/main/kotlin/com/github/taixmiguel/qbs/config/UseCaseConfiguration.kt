@@ -2,9 +2,9 @@ package com.github.taixmiguel.qbs.config
 
 import com.github.taixmiguel.qbs.application.port.filesystem.BackupCompressor
 import com.github.taixmiguel.qbs.application.port.BackupIdGenerator
+import com.github.taixmiguel.qbs.application.port.event.BackupEventPublisher
 import com.github.taixmiguel.qbs.application.port.filesystem.FileSystemValidator
 import com.github.taixmiguel.qbs.application.port.persistence.BackupRepository
-import com.github.taixmiguel.qbs.application.port.publisher.MessagePublisher
 import com.github.taixmiguel.qbs.application.port.storage.StorageServiceRegistry
 import com.github.taixmiguel.qbs.application.usecase.CreateBackup
 import com.github.taixmiguel.qbs.application.usecase.ExecuteBackup
@@ -21,9 +21,10 @@ class UseCaseConfiguration {
         idGenerator: BackupIdGenerator,
         repository: BackupRepository,
         ssRegistry: StorageServiceRegistry,
-        fsValidator: FileSystemValidator
+        fsValidator: FileSystemValidator,
+        eventPublisher: BackupEventPublisher
     ): CreateBackup {
-        return CreateBackup(idGenerator, repository, ssRegistry, fsValidator)
+        return CreateBackup(idGenerator, repository, ssRegistry, eventPublisher, fsValidator)
     }
 
     @Produces
@@ -44,8 +45,8 @@ class UseCaseConfiguration {
         repository: BackupRepository,
         ssRegistry: StorageServiceRegistry,
         compressor: BackupCompressor,
-        msgPublisher: MessagePublisher
+        eventPublisher: BackupEventPublisher
     ): ExecuteBackup {
-        return ExecuteBackup(repository, ssRegistry, compressor, msgPublisher)
+        return ExecuteBackup(repository, ssRegistry, compressor, eventPublisher)
     }
 }

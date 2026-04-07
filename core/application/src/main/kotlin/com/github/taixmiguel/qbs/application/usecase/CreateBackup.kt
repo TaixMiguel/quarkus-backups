@@ -1,6 +1,8 @@
 package com.github.taixmiguel.qbs.application.usecase
 
 import com.github.taixmiguel.qbs.application.port.BackupIdGenerator
+import com.github.taixmiguel.qbs.application.port.event.BackupCreatedEvent
+import com.github.taixmiguel.qbs.application.port.event.BackupEventPublisher
 import com.github.taixmiguel.qbs.application.port.filesystem.FileSystemValidator
 import com.github.taixmiguel.qbs.application.port.persistence.BackupRepository
 import com.github.taixmiguel.qbs.domain.Backup
@@ -15,6 +17,7 @@ class CreateBackup(
     private val idGenerator: BackupIdGenerator,
     private val repository: BackupRepository,
     private val ssRegistry: StorageServiceRegistry,
+    private val eventPublisher: BackupEventPublisher,
     private val fileSystemValidator: FileSystemValidator
 ) {
     fun execute(command: BackupCommand): BackupId {
@@ -38,6 +41,9 @@ class CreateBackup(
         )
 
         repository.save(backup)
+        eventPublisher.publishBackupCreated(
+            BackupCreatedEvent(backupId = backup.id, backupName = backup.name, swSensorMQTT = backup.swSensorMQTT)
+        )
         return backup.id
     }
 }

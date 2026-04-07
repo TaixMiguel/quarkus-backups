@@ -1,7 +1,9 @@
-package com.github.taixmiguel.qbs.driven.mqtt.discovery
+package com.github.taixmiguel.qbs.driven.mqtt.home_assistant
 
 import com.github.taixmiguel.qbs.application.port.persistence.BackupRepository
 import com.github.taixmiguel.qbs.application.port.publisher.MessagePublisher
+import com.github.taixmiguel.qbs.domain.valueobjects.BackupId
+import com.github.taixmiguel.qbs.domain.valueobjects.BackupName
 import io.quarkus.logging.Log
 import io.quarkus.scheduler.Scheduled
 import jakarta.enterprise.context.ApplicationScoped
@@ -21,12 +23,14 @@ class HomeAssistantDiscoveryService @Inject constructor(
     @field:ConfigProperty(name = "app.version")
     private lateinit var appVersion: String
 
+    private lateinit var device: MQTTDevice
+
     @Scheduled(every = "12h", delayed = "10s")
     fun onSchedule() {
         Log.info("Running Home Assistant discovery schedule")
         try {
-            val device = createDevice()
-            createBackupsEntities(device)
+            device = createDevice()
+            createBackupsEntities()
             Log.info("Home Assistant discovery completed successfully")
         } catch (e: Exception) {
             Log.errorf(e, "Discovery schedule failed: %s", e.message)
@@ -51,27 +55,30 @@ class HomeAssistantDiscoveryService @Inject constructor(
         return device
     }
 
-    private fun createBackupsEntities(device: MQTTDevice) {
+    private fun createBackupsEntities() {
         repository.findAll()
             .stream()
             .filter { it.swSensorMQTT }
-            .forEach {
-                Log.debugf("Creating last execution sensor for backup: %s", it.id.value)
-                var stateTopic = formatTopic(topicPrefix="stat", topicSubfix="lastExecution", backupId = it.id.value)
-                var entity = MQTTEntity.create(device, name = "Ejecución [${it.name.value}]",
-                    objectId = "taixBackupsService_${it.id.value}_lastExecution",
-                    uniqueId = "taixBackupsService_${it.id.value}_lastExecution",
-                    retain = true, stateTopic = stateTopic)
-                publisher.publish(topic = entity.getConfigTopic(), payload = entity.formatJSON(), retain = true)
+            .forEach { registerBackup(backupId = it.id, backupName = it.name) }
+    }
 
-                Log.debugf("Creating state sensor for backup: %s", it.id.value)
-                stateTopic = formatTopic(topicPrefix="stat", topicSubfix="stateBackup", backupId = it.id.value)
-                entity = MQTTEntity.create(device, name = "Estado [${it.name.value}]",
-                    objectId = "taixBackupsService_${it.id.value}_stateBackup",
-                    uniqueId = "taixBackupsService_${it.id.value}_stateBackup",
-                    retain = true, stateTopic = stateTopic)
-                publisher.publish(topic = entity.getConfigTopic(), payload = entity.formatJSON(), retain = true)
-            }
+    fun registerBackup(backupId: BackupId, backupName: BackupName) {
+        if (!::device.isInitialized) device = createDevice()
+        Log.debugf("Creating last execution sensor for backup: %s", backupId.value)
+        var stateTopic = formatTopic(topicPrefix="stat", topicSubfix="lastExecution", backupId = backupId.value)
+        var entity = MQTTEntity.create(device, name = "Ejecución [${backupName.value}]",
+            objectId = "taixBackupsService_${backupId.value}_lastExecution",
+            uniqueId = "taixBackupsService_${backupId.value}_lastExecution",
+            retain = true, stateTopic = stateTopic)
+        publisher.publish(topic = entity.getConfigTopic(), payload = entity.formatJSON(), retain = true)
+
+        Log.debugf("Creating state sensor for backup: %s", backupId.value)
+        stateTopic = formatTopic(topicPrefix="stat", topicSubfix="stateBackup", backupId = backupId.value)
+        entity = MQTTEntity.create(device, name = "Estado [${backupName.value}]",
+            objectId = "taixBackupsService_${backupId.value}_stateBackup",
+            uniqueId = "taixBackupsService_${backupId.value}_stateBackup",
+            retain = true, stateTopic = stateTopic)
+        publisher.publish(topic = entity.getConfigTopic(), payload = entity.formatJSON(), retain = true)
     }
 
     private fun formatTopic(topicPrefix: String, topicSubfix: String, backupId: String = "global"): String {
