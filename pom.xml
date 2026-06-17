@@ -44,7 +44,7 @@
         <maven-compiler-plugin.version>3.15.0</maven-compiler-plugin.version>
         <maven-surefire-plugin.version>3.5.6</maven-surefire-plugin.version>
         <maven-failsafe-plugin.version>3.5.6</maven-failsafe-plugin.version>
-        <jandex-maven-plugin.version>3.5.3</jandex-maven-plugin.version>
+        <jandex-maven-plugin.version>3.6.0</jandex-maven-plugin.version>
 
         <!-- Test Configuration -->
         <skipITs>false</skipITs>
